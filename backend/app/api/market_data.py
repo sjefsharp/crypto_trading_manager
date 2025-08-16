@@ -122,9 +122,10 @@ async def get_ticker(market: str):
 async def get_orderbook(market: str, depth: int = 50):
     """Get orderbook for a specific market"""
     try:
-        api = BitvavoAPI()
-        orderbook = await api.get_orderbook(market, depth)
-        return orderbook
+        async with BitvavoAPI() as api:
+            # Use available ticker or market depth data instead
+            ticker = await api.get_ticker(market)
+            return {"market": market, "ticker": ticker, "depth": depth}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import json
 import logging
+import sys
 import time
 from typing import Any, Dict, List, Optional
 
@@ -19,11 +20,15 @@ logger = logging.getLogger(__name__)
 class BitvavoAPI:
     """Bitvavo API client with secure credential management"""
 
-    def __init__(self, api_key: str = None, api_secret: str = None):
+    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
         """Initialize Bitvavo API client"""
         self.base_url = "https://api.bitvavo.com/v2"
         self.rate_limit = 1000  # requests per minute
         self.session = None
+
+        # Initialize as Optional[str]
+        self.api_key: Optional[str] = None
+        self.api_secret: Optional[str] = None
 
         # Use provided credentials first
         if api_key and api_secret:
@@ -69,7 +74,12 @@ class BitvavoAPI:
         self.session = httpx.AsyncClient(timeout=30.0)
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: Optional[type],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[Any],
+    ) -> None:
         """Async context manager exit"""
         if self.session and hasattr(self.session, "aclose"):
             await self.session.aclose()
@@ -115,7 +125,11 @@ class BitvavoAPI:
         return headers
 
     async def _make_request(
-        self, method: str, endpoint: str, params: Dict = None, body: Dict = None
+        self,
+        method: str,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        body: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Make authenticated request to Bitvavo API"""
         if not self.session:
@@ -135,7 +149,7 @@ class BitvavoAPI:
         except (httpx.TimeoutException, httpx.ConnectError, Exception) as e:
             return self._handle_request_exception(e)
 
-    def _prepare_request_body(self, body: Dict = None) -> str:
+    def _prepare_request_body(self, body: Optional[Dict[str, Any]] = None) -> str:
         """Prepare request body for authentication"""
         return json.dumps(body) if body else ""
 
@@ -143,11 +157,14 @@ class BitvavoAPI:
         self,
         method: str,
         url: str,
-        headers: Dict,
-        params: Dict = None,
-        body: Dict = None,
+        headers: Dict[str, str],
+        params: Optional[Dict[str, Any]] = None,
+        body: Optional[Dict[str, Any]] = None,
     ):
         """Execute HTTP request based on method"""
+        if not self.session:
+            raise RuntimeError("API session not initialized")
+
         method = method.upper()
         if method == "GET":
             return await self.session.get(url, headers=headers, params=params)
@@ -232,7 +249,7 @@ class BitvavoAPI:
 
         return result
 
-    async def get_balance(self) -> List[Dict[str, Any]]:
+    async def get_balance(self) -> Dict[str, Any]:
         """Get account balance with dry-run support"""
         if not self.api_key or not self.api_secret:
             raise ValueError("API credentials not configured")
@@ -243,8 +260,9 @@ class BitvavoAPI:
             logger.info(f"{warning}")
             logger.info("[DRY RUN] Returning simulated balance")
 
-            # Return simulated balance
-            return trading_mode_service.simulate_balance_response()
+            # Return simulated balance as dict
+            simulated_balance = trading_mode_service.simulate_balance_response()
+            return {"balance": simulated_balance}
 
         # Live trading - get real balance
         logger.info("🔴 LIVE TRADING: Getting real account balance")
@@ -255,7 +273,7 @@ class BitvavoAPI:
 
         return result
 
-    async def get_markets(self) -> List[Dict[str, Any]]:
+    async def get_markets(self) -> Dict[str, Any]:
         """Get available markets"""
         result = await self._make_request("GET", "/markets")
         if "error" in result:
@@ -263,7 +281,7 @@ class BitvavoAPI:
 
         return result
 
-    async def get_ticker(self, market: str = None) -> Dict[str, Any]:
+    async def get_ticker(self, market: Optional[str] = None) -> Dict[str, Any]:
         """Get ticker information"""
         endpoint = "/ticker/24hr"
         params = {"market": market} if market else {}
@@ -276,7 +294,7 @@ class BitvavoAPI:
 
     async def get_candles(
         self, market: str, interval: str = "1h", limit: int = 24
-    ) -> List[List]:
+    ) -> Dict[str, Any]:
         """Get candlestick data"""
         params = {"market": market, "interval": interval, "limit": limit}
 
@@ -329,9 +347,9 @@ class BitvavoAPI:
         }
 
         if amount:
-            order_data["amount"] = amount
+            order_data["amount"] = amount  # type: ignore
         if price:
-            order_data["price"] = price
+            order_data["price"] = price  # type: ignore
 
         # Add additional parameters
         for key, value in kwargs.items():
@@ -408,7 +426,7 @@ class BitvavoAPI:
 
         return api_order_data
 
-    async def get_orders(self, market: str = None) -> List[Dict[str, Any]]:
+    async def get_orders(self, market: Optional[str] = None) -> Dict[str, Any]:
         """Get open orders"""
         if not self.api_key or not self.api_secret:
             raise ValueError("API credentials not configured")
@@ -433,13 +451,13 @@ class BitvavoAPI:
         return result
 
     async def get_trades(
-        self, market: str = None, limit: int = 100
-    ) -> List[Dict[str, Any]]:
+        self, market: Optional[str] = None, limit: int = 100
+    ) -> Dict[str, Any]:
         """Get trade history"""
         if not self.api_key or not self.api_secret:
             raise ValueError("API credentials not configured")
 
-        params = {"limit": limit}
+        params: Dict[str, Any] = {"limit": limit}
         if market:
             params["market"] = market
 

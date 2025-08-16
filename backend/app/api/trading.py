@@ -37,18 +37,23 @@ class BalanceResponse(BaseModel):
 
 @router.get("/balance", response_model=List[BalanceResponse])
 async def get_balance(db: Session = Depends(get_db)):
-    """Get account balance from Bitvavo"""
+    """Get account balance for all currencies"""
     try:
-        api = BitvavoAPI()
-        balance_data = await api.get_balance()
+        async with BitvavoAPI() as api:
+            balance_result = await api.get_balance()
+            balance_data = (
+                balance_result.get("balance", [])
+                if isinstance(balance_result, dict)
+                else balance_result
+            )
 
         balances = []
         for item in balance_data:
             balances.append(
                 BalanceResponse(
-                    symbol=item["symbol"],
-                    available=float(item["available"]),
-                    in_order=float(item["inOrder"]),
+                    symbol=item["symbol"],  # type: ignore
+                    available=float(item["available"]),  # type: ignore
+                    in_order=float(item["inOrder"]),  # type: ignore
                 )
             )
 
@@ -58,70 +63,59 @@ async def get_balance(db: Session = Depends(get_db)):
 
 
 @router.post("/order", response_model=OrderResponse)
-async def place_order(order_request: OrderRequest, db: Session = Depends(get_db)):
-    """Place a new trading order"""
+async def place_order(order: OrderRequest, db: Session = Depends(get_db)):
+    """Place a new order"""
     try:
-        api = BitvavoAPI()
-        # Place the main order
-        order_result = await api.place_order(
-            market=order_request.market,
-            side=order_request.side,
-            order_type=order_request.order_type,
-            amount=order_request.amount,
-            price=order_request.price,
-        )
-
-        order_id = order_result["orderId"]
-
-        # If this is a buy/sell order with stop loss or take profit, place additional orders
-        if order_request.stop_loss_price and order_request.order_type in [
-            "market",
-            "limit",
-        ]:
-            # Place stop loss order
-            stop_loss_side = "sell" if order_request.side == "buy" else "buy"
-            await api.place_order(
-                market=order_request.market,
-                side=stop_loss_side,
-                order_type="stopLoss",
-                amount=order_request.amount,
-                triggerPrice=order_request.stop_loss_price,
+        async with BitvavoAPI() as api:
+            order_result = await api.place_order(
+                market=order.market,
+                side=order.side,
+                order_type=order.order_type,
+                amount=order.amount,
+                price=order.price,
             )
-
-        if order_request.take_profit_price and order_request.order_type in [
-            "market",
-            "limit",
-        ]:
-            # Place take profit order
-            take_profit_side = "sell" if order_request.side == "buy" else "buy"
-            await api.place_order(
-                market=order_request.market,
-                side=take_profit_side,
-                order_type="limit",
-                amount=order_request.amount,
-                price=order_request.take_profit_price,
-            )
-
-        # Save trade to database
-        # TODO: Add user authentication and get actual user_id
-        trade = Trade(
-            user_id=1,  # Placeholder for now
-            exchange="bitvavo",
-            symbol=order_request.market,
-            side=order_request.side,
-            order_type=order_request.order_type,
-            quantity=order_request.amount,
-            price=order_request.price,
-            exchange_order_id=order_id,
-            status="pending",
-        )
-        db.add(trade)
-        db.commit()
 
         return OrderResponse(
-            order_id=order_id, status="success", message="Order placed successfully"
+            order_id=order_result.get("orderId", ""),
+            status=order_result.get("status", ""),
+            message="Order placed successfully",
         )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
+
+@router.post("/buy")
+async def buy_order(order: OrderRequest, db: Session = Depends(get_db)):
+    """Place a buy order"""
+    try:
+        async with BitvavoAPI() as api:
+            order_result = await api.place_order(
+                market=order.market,
+                side="buy",
+                order_type=order.order_type,
+                amount=order.amount,
+                price=order.price,
+            )
+
+        return order_result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/sell")
+async def sell_order(order: OrderRequest, db: Session = Depends(get_db)):
+    """Place a sell order"""
+    try:
+        async with BitvavoAPI() as api:
+            order_result = await api.place_order(
+                market=order.market,
+                side="sell",
+                order_type=order.order_type,
+                amount=order.amount,
+                price=order.price,
+            )
+
+        return order_result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -130,20 +124,20 @@ async def place_order(order_request: OrderRequest, db: Session = Depends(get_db)
 async def get_open_orders(market: Optional[str] = None):
     """Get open orders"""
     try:
-        api = BitvavoAPI()
-        orders = await api.get_orders(market)
-        return orders
+        async with BitvavoAPI() as api:
+            orders = await api.get_orders(market)
+            return orders
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.delete("/order/{order_id}")
 async def cancel_order(order_id: str):
-    """Cancel a specific order"""
+    """Cancel an order"""
     try:
-        api = BitvavoAPI()
-        result = await api.cancel_order(order_id)
-        return result
+        async with BitvavoAPI() as api:
+            result = await api.cancel_order(order_id)
+            return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -152,9 +146,9 @@ async def cancel_order(order_id: str):
 async def get_order_history(market: Optional[str] = None, limit: int = 100):
     """Get order history"""
     try:
-        api = BitvavoAPI()
-        history = await api.get_trades(market, limit)
-        return history
+        async with BitvavoAPI() as api:
+            history = await api.get_trades(market, limit)
+            return history
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -163,8 +157,8 @@ async def get_order_history(market: Optional[str] = None, limit: int = 100):
 async def get_trade_history(market: Optional[str] = None, limit: int = 100):
     """Get trade history"""
     try:
-        api = BitvavoAPI()
-        history = await api.get_trades(market, limit)
-        return history
+        async with BitvavoAPI() as api:
+            history = await api.get_trades(market, limit)
+            return history
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

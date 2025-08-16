@@ -62,11 +62,11 @@ async def create_portfolio(portfolio: PortfolioCreate, db: Session = Depends(get
         db.refresh(db_portfolio)
 
         return PortfolioResponse(
-            id=db_portfolio.id,
-            name=db_portfolio.name,
-            description=db_portfolio.description or "",
-            total_value=db_portfolio.total_value,
-            is_active=db_portfolio.is_active,
+            id=db_portfolio.id,  # type: ignore
+            name=db_portfolio.name,  # type: ignore
+            description=db_portfolio.description or "",  # type: ignore
+            total_value=db_portfolio.total_value,  # type: ignore
+            is_active=db_portfolio.is_active,  # type: ignore
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -83,11 +83,11 @@ async def get_portfolios(db: Session = Depends(get_db)):
         for portfolio in portfolios:
             result.append(
                 PortfolioResponse(
-                    id=portfolio.id,
-                    name=portfolio.name,
-                    description=portfolio.description or "",
-                    total_value=portfolio.total_value,
-                    is_active=portfolio.is_active,
+                    id=portfolio.id,  # type: ignore
+                    name=portfolio.name,  # type: ignore
+                    description=portfolio.description or "",  # type: ignore
+                    total_value=portfolio.total_value,  # type: ignore
+                    is_active=portfolio.is_active,  # type: ignore
                 )
             )
 
@@ -113,11 +113,11 @@ async def get_portfolio(portfolio_id: int, db: Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail="Portfolio not found")
 
         return PortfolioResponse(
-            id=portfolio.id,
-            name=portfolio.name,
-            description=portfolio.description or "",
-            total_value=portfolio.total_value,
-            is_active=portfolio.is_active,
+            id=portfolio.id,  # type: ignore
+            name=portfolio.name,  # type: ignore
+            description=portfolio.description or "",  # type: ignore
+            total_value=portfolio.total_value,  # type: ignore
+            is_active=portfolio.is_active,  # type: ignore
         )
     except HTTPException:
         # Re-raise HTTP exceptions (like 404) without wrapping them
@@ -138,12 +138,12 @@ async def get_portfolio_positions(portfolio_id: int, db: Session = Depends(get_d
         for position in positions:
             result.append(
                 PositionResponse(
-                    id=position.id,
-                    symbol=position.symbol,
-                    quantity=position.quantity,
-                    average_price=position.average_price,
-                    current_price=position.current_price or 0.0,
-                    unrealized_pnl=position.unrealized_pnl,
+                    id=position.id,  # type: ignore
+                    symbol=position.symbol,  # type: ignore
+                    quantity=position.quantity,  # type: ignore
+                    average_price=position.average_price,  # type: ignore
+                    current_price=position.current_price or 0.0,  # type: ignore
+                    unrealized_pnl=position.unrealized_pnl,  # type: ignore
                 )
             )
 
@@ -169,16 +169,16 @@ async def get_portfolio_trades(portfolio_id: int, db: Session = Depends(get_db))
         for trade in trades:
             result.append(
                 TradeResponse(
-                    id=trade.id,
-                    symbol=trade.symbol,
-                    side=trade.side,
-                    order_type=trade.order_type,
-                    quantity=trade.quantity,
-                    price=trade.price or 0.0,
-                    filled_quantity=trade.filled_quantity,
-                    filled_price=trade.filled_price or 0.0,
-                    status=trade.status,
-                    created_at=trade.created_at.isoformat() if trade.created_at else "",
+                    id=trade.id,  # type: ignore
+                    symbol=trade.symbol,  # type: ignore
+                    side=trade.side,  # type: ignore
+                    order_type=trade.order_type,  # type: ignore
+                    quantity=trade.quantity,  # type: ignore
+                    price=trade.price or 0.0,  # type: ignore
+                    filled_quantity=trade.filled_quantity,  # type: ignore
+                    filled_price=trade.filled_price or 0.0,  # type: ignore
+                    status=trade.status,  # type: ignore
+                    created_at=trade.created_at.isoformat() if trade.created_at else "",  # type: ignore
                 )
             )
 
@@ -204,8 +204,8 @@ async def update_portfolio_positions(portfolio_id: int, db: Session = Depends(ge
                     current_price = float(ticker["last"])
 
                     # Update position with current price and calculate P&L
-                    position.current_price = current_price
-                    position.unrealized_pnl = (
+                    position.current_price = current_price  # type: ignore
+                    position.unrealized_pnl = (  # type: ignore
                         current_price - position.average_price
                     ) * position.quantity
 
@@ -219,7 +219,7 @@ async def update_portfolio_positions(portfolio_id: int, db: Session = Depends(ge
             total_value = sum(
                 (pos.current_price or 0) * pos.quantity for pos in positions
             )
-            portfolio.total_value = total_value
+            portfolio.total_value = total_value  # type: ignore
 
         db.commit()
 

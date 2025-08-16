@@ -1,12 +1,13 @@
 """
-Trading Mode Service voor het beheren van dry-run, demo en live trading modes
+Simulated trading mode service voor demo/dry-run functionaliteit
 """
 
+import json
 import logging
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from app.core.config import settings
 

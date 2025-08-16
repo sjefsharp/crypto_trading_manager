@@ -58,13 +58,17 @@ def process_candle_data(raw_candles: List[List[Any]]) -> List[Dict[str, Any]]:
             }
 
             # Convert timestamp to datetime if needed
-            if processed_candle["timestamp"] > 1000000000000:  # Milliseconds
-                timestamp_seconds = processed_candle["timestamp"] / 1000
-            else:
-                timestamp_seconds = processed_candle["timestamp"]
+            timestamp_value = processed_candle["timestamp"]
+            if isinstance(timestamp_value, str):
+                timestamp_value = float(timestamp_value)
 
-            processed_candle["datetime"] = datetime.fromtimestamp(
-                timestamp_seconds
+            if timestamp_value > 1000000000000:  # Milliseconds
+                timestamp_seconds = timestamp_value / 1000
+            else:
+                timestamp_seconds = timestamp_value
+
+            processed_candle["datetime"] = datetime.fromtimestamp(  # type: ignore
+                float(timestamp_seconds)
             ).isoformat()
             processed_candles.append(processed_candle)
 

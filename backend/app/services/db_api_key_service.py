@@ -20,7 +20,7 @@ class DatabaseAPIKeyService:
         self.encryption_service = get_encryption_service()
 
     def get_bitvavo_credentials(
-        self, db: Session = None
+        self, db: Optional[Session] = None
     ) -> Tuple[Optional[str], Optional[str]]:
         """Get Bitvavo API credentials from database"""
         if db is None:
@@ -41,9 +41,11 @@ class DatabaseAPIKeyService:
                 return None, None
 
             # Decrypt the credentials
-            api_key = self.encryption_service.decrypt(api_key_record.encrypted_api_key)
+            api_key = self.encryption_service.decrypt(
+                str(api_key_record.encrypted_api_key)
+            )
             api_secret = self.encryption_service.decrypt(
-                api_key_record.encrypted_api_secret
+                str(api_key_record.encrypted_api_secret)
             )
 
             return api_key, api_secret
@@ -56,7 +58,7 @@ class DatabaseAPIKeyService:
                 db.close()
 
     def get_exchange_credentials(
-        self, exchange: str, db: Session = None
+        self, exchange: str, db: Optional[Session] = None
     ) -> Tuple[Optional[str], Optional[str]]:
         """Get API credentials for any exchange from database"""
         if db is None:
@@ -77,9 +79,11 @@ class DatabaseAPIKeyService:
                 return None, None
 
             # Decrypt the credentials
-            api_key = self.encryption_service.decrypt(api_key_record.encrypted_api_key)
+            api_key = self.encryption_service.decrypt(
+                str(api_key_record.encrypted_api_key)
+            )
             api_secret = self.encryption_service.decrypt(
-                api_key_record.encrypted_api_secret
+                str(api_key_record.encrypted_api_secret)
             )
 
             return api_key, api_secret
@@ -91,7 +95,7 @@ class DatabaseAPIKeyService:
             if db:
                 db.close()
 
-    def has_credentials(self, exchange: str, db: Session = None) -> bool:
+    def has_credentials(self, exchange: str, db: Optional[Session] = None) -> bool:
         """Check if user has credentials configured for an exchange"""
         api_key, api_secret = self.get_exchange_credentials(exchange, db)
         return bool(api_key and api_secret)

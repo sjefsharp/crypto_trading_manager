@@ -2,7 +2,7 @@
 API endpoints for managing user API keys
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -26,8 +26,8 @@ class APIKeyRequest(BaseModel):
 class APIKeyResponse(BaseModel):
     exchange: str
     is_configured: bool
-    created_at: str = None
-    last_used: str = None
+    created_at: Optional[str] = None
+    last_used: Optional[str] = None
 
 
 class APIKeyStatus(BaseModel):
@@ -99,11 +99,11 @@ async def store_api_key(
 
         if existing_key:
             # Update existing key
-            existing_key.encrypted_api_key = encryption_service.encrypt(request.api_key)
-            existing_key.encrypted_api_secret = encryption_service.encrypt(
+            existing_key.encrypted_api_key = encryption_service.encrypt(request.api_key)  # type: ignore
+            existing_key.encrypted_api_secret = encryption_service.encrypt(  # type: ignore
                 request.api_secret
             )
-            existing_key.is_active = True
+            existing_key.is_active = True  # type: ignore
         else:
             # Create new API key entry
             new_api_key = APIKey(
@@ -183,7 +183,7 @@ async def delete_api_key(
             )
 
         # Soft delete - just mark as inactive
-        api_key.is_active = False
+        api_key.is_active = False  # type: ignore
         db.commit()
 
         return {
@@ -225,8 +225,10 @@ async def test_api_key(
 
         # Decrypt the credentials
         encryption_service = EncryptionService()
-        api_key = encryption_service.decrypt(api_key_record.encrypted_api_key)
-        api_secret = encryption_service.decrypt(api_key_record.encrypted_api_secret)
+        api_key = encryption_service.decrypt(str(api_key_record.encrypted_api_key))
+        api_secret = encryption_service.decrypt(
+            str(api_key_record.encrypted_api_secret)
+        )
 
         # Test the connection based on exchange
         if exchange.lower() == "bitvavo":
