@@ -1,5 +1,4 @@
-import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import httpx
 import pytest
@@ -191,15 +190,8 @@ class TestBitvavoAPIConfiguration:
         assert api.base_url == "https://api.bitvavo.com/v2"
 
         # Check endpoint paths
-        expected_endpoints = [
-            "/account",
-            "/balance",
-            "/order",
-            "/orders",
-            "/ticker",
-            "/markets",
-            "/candles",
-        ]
+        # Expected endpoints are defined but not used in this test
+        # This validates that the API base URL is correctly set
 
         # These should be accessible as part of the API configuration
         # This test ensures the endpoints are properly defined

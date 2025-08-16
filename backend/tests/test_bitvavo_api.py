@@ -1,4 +1,3 @@
-import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -131,7 +130,7 @@ class TestBitvavoAPI:
         assert "orderId" in result  # Order ID will be simulated
         assert result["market"] == "BTC-EUR"
         assert result["side"] == "buy"
-        assert result.get("simulated") == True  # Dry-run mode indicator
+        assert result.get("simulated").is_(True)  # Dry-run mode indicator
 
     @pytest.mark.asyncio
     async def test_api_without_session_raises_error(self):
@@ -212,7 +211,7 @@ class TestTradingHelpers:
 
         # In dry-run mode, we get simulated responses
         assert "orderId" in result  # Order ID will be simulated
-        assert result.get("simulated") == True  # Dry-run mode indicator
+        assert result.get("simulated").is_(True)  # Dry-run mode indicator
 
         # Note: In dry-run mode, actual API calls are not made
         # mock_client_instance.post.assert_called_once()  # Disabled for dry-run

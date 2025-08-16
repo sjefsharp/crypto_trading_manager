@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -7,12 +7,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.core.config import settings
 from app.core.database import Base, get_db
 from app.main import app
 
 # Import models to register with Base
-from app.models.database_models import Portfolio, Trade, User
 
 # Test database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -37,17 +35,6 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
-
-import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from app.core.database import Base, get_db
-from app.main import app
 
 
 @pytest.fixture
@@ -232,62 +219,7 @@ def sample_user_data():
 
 
 @pytest.fixture
-def sample_portfolio_data():
-    """Sample portfolio data for testing"""
-    return {
-        "name": "Test Portfolio",
-        "description": "A test portfolio for unit testing",
-    }
-
-
-@pytest.fixture
-def sample_order_data():
-    """Sample order data for testing"""
-    return {"market": "BTC-EUR", "side": "buy", "order_type": "market", "amount": 0.001}
-
-
-@pytest.fixture
-def mock_bitvavo_response():
-    """Mock Bitvavo API response data"""
-    return {
-        "ticker": {
-            "market": "BTC-EUR",
-            "last": "45000.00",
-            "high": "46000.00",
-            "low": "44000.00",
-            "volume": "100.50",
-            "volumeQuote": "4525000.00",
-            "bid": "44999.99",
-            "ask": "45000.01",
-            "timestamp": 1692115200000,
-        },
-        "markets": [
-            {
-                "market": "BTC-EUR",
-                "status": "trading",
-                "base": "BTC",
-                "quote": "EUR",
-                "pricePrecision": 2,
-                "minOrderInQuoteAsset": "10",
-                "minOrderInBaseAsset": "0.001",
-                "orderTypes": ["market", "limit"],
-            }
-        ],
-        "balance": [
-            {"symbol": "EUR", "available": "1000.00", "inOrder": "0.00"},
-            {"symbol": "BTC", "available": "0.05", "inOrder": "0.00"},
-        ],
-        "order_response": {
-            "orderId": "test-order-123",
-            "market": "BTC-EUR",
-            "created": 1692115200000,
-            "updated": 1692115200000,
-            "status": "new",
-            "side": "buy",
-            "orderType": "market",
-            "amount": "0.001",
-            "amountRemaining": "0.001",
-            "onHold": "45.00",
-            "onHoldCurrency": "EUR",
-        },
-    }
+def mock_api_instance():
+    """Mock API client fixture"""
+    mock_api = AsyncMock()
+    return mock_api

@@ -2,12 +2,11 @@
 Tests for the database API key service
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
-import pytest
 from sqlalchemy.orm import Session
 
-from app.models.database_models import APIKey, User
+from app.models.database_models import APIKey
 from app.services.db_api_key_service import DatabaseAPIKeyService
 
 

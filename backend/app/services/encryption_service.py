@@ -66,7 +66,7 @@ class EncryptionService:
             decoded_data = base64.urlsafe_b64decode(data.encode())
             self.cipher.decrypt(decoded_data)
             return True
-        except:
+        except Exception:
             return False
 
 

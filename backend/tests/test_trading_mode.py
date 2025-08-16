@@ -2,9 +2,8 @@
 Tests voor Trading Mode Service en API endpoints
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -17,23 +16,23 @@ class TestTradingModeService:
     def test_default_dry_run_mode(self):
         """Test dat default mode dry_run is"""
         assert trading_mode_service.get_current_mode() == TradingMode.DRY_RUN
-        assert trading_mode_service.is_dry_run_enabled() == True
-        assert trading_mode_service.is_live_trading() == False
+        assert trading_mode_service.is_dry_run_enabled().is_(True)
+        assert trading_mode_service.is_live_trading().is_(False)
 
     def test_mode_switching(self):
         """Test het wisselen van trading modes"""
         # Test demo mode
         trading_mode_service.set_mode(TradingMode.DEMO)
         assert trading_mode_service.get_current_mode() == TradingMode.DEMO
-        assert (
-            trading_mode_service.is_dry_run_enabled() == True
+        assert trading_mode_service.is_dry_run_enabled().is_(
+            True
         )  # Still dry run in demo
 
         # Test live mode with forced dry run
         trading_mode_service.set_mode(TradingMode.LIVE, force_dry_run=True)
         assert trading_mode_service.get_current_mode() == TradingMode.LIVE
-        assert trading_mode_service.is_dry_run_enabled() == True
-        assert trading_mode_service.is_live_trading() == False
+        assert trading_mode_service.is_dry_run_enabled().is_(True)
+        assert trading_mode_service.is_live_trading().is_(False)
 
     def test_warning_messages(self):
         """Test warning messages voor verschillende modes"""
@@ -63,7 +62,7 @@ class TestTradingModeService:
         assert response["market"] == "BTC-EUR"
         assert response["side"] == "buy"
         assert response["orderType"] == "market"
-        assert response["simulated"] == True
+        assert response["simulated"].is_(True)
         assert response["status"] == "filled"  # Market orders get filled
         assert "SIM-" in response["orderId"]
 
@@ -84,7 +83,7 @@ class TestTradingModeService:
         trading_mode_service.dry_run_enabled = False
 
         can_trade, message = trading_mode_service.validate_live_trading_requirements()
-        assert can_trade == True
+        assert can_trade.is_(True)
         assert "voldaan" in message.lower()
 
     def test_live_trading_validation_no_credentials(self):
@@ -93,7 +92,7 @@ class TestTradingModeService:
             can_trade, message = (
                 trading_mode_service.validate_live_trading_requirements()
             )
-            assert can_trade == False
+            assert can_trade.is_(False)
             assert "credentials" in message.lower()
 
 
@@ -113,8 +112,8 @@ class TestTradingModeAPI:
 
         data = response.json()
         assert data["current_mode"] == "dry_run"
-        assert data["dry_run_enabled"] == True
-        assert data["is_live_trading"] == False
+        assert data["dry_run_enabled"].is_(True)
+        assert data["is_live_trading"].is_(False)
         assert data["warning_message"] is not None
 
     def test_set_trading_mode_dry_run(self):
@@ -126,7 +125,7 @@ class TestTradingModeAPI:
 
         data = response.json()
         assert data["current_mode"] == "dry_run"
-        assert data["dry_run_enabled"] == True
+        assert data["dry_run_enabled"].is_(True)
 
     def test_set_trading_mode_demo(self):
         """Test set trading mode naar demo"""
@@ -137,7 +136,7 @@ class TestTradingModeAPI:
 
         data = response.json()
         assert data["current_mode"] == "demo"
-        assert data["dry_run_enabled"] == True  # Demo is still dry run
+        assert data["dry_run_enabled"].is_(True)  # Demo is still dry run
 
     def test_set_invalid_trading_mode(self):
         """Test set invalid trading mode"""
@@ -162,7 +161,7 @@ class TestTradingModeAPI:
         assert response.status_code == 200
 
         data = response.json()
-        assert data["dry_run_enabled"] == True
+        assert data["dry_run_enabled"].is_(True)
         assert "enabled" in data["message"].lower()
 
     def test_validate_live_trading(self):

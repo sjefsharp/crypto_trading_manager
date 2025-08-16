@@ -2,9 +2,8 @@
 Tests voor Trading Mode UI Integration
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -57,7 +56,7 @@ class TestTradingModeUIIntegration:
 
         demo_status = response.json()
         assert demo_status["current_mode"] == "demo"
-        assert demo_status["dry_run_enabled"] == True
+        assert demo_status["dry_run_enabled"].is_(True)
 
         # 3. Verify status endpoint reflects change
         response = self.client.get("/api/v1/trading-mode/status")
@@ -91,13 +90,13 @@ class TestTradingModeUIIntegration:
         assert response.status_code == 200
 
         emergency_response = response.json()
-        assert emergency_response["dry_run_enabled"] == True
+        assert emergency_response["dry_run_enabled"].is_(True)
         assert "enabled" in emergency_response["message"].lower()
 
         # Verify status reflects emergency activation
         response = self.client.get("/api/v1/trading-mode/status")
         status = response.json()
-        assert status["dry_run_enabled"] == True
+        assert status["dry_run_enabled"].is_(True)
 
     def test_warning_messages_for_ui(self):
         """Test dat warning messages consistent zijn voor UI"""
@@ -143,8 +142,10 @@ class TestTradingModeUIIntegration:
         assert response.status_code == 200
         live_data = response.json()
         assert live_data["current_mode"] == "live"
-        assert live_data["dry_run_enabled"] == True  # Safety override
-        assert live_data["is_live_trading"] == False  # Not actually live due to dry_run
+        assert live_data["dry_run_enabled"].is_(True)  # Safety override
+        assert live_data["is_live_trading"].is_(
+            False
+        )  # Not actually live due to dry_run
 
     def test_health_check_includes_mode_for_ui(self):
         """Test dat health check trading mode info bevat voor UI monitoring"""

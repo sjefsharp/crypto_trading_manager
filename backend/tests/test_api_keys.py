@@ -2,9 +2,6 @@
 Tests for API key management endpoints
 """
 
-from unittest.mock import MagicMock, patch
-
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker
 

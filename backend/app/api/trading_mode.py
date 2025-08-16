@@ -5,7 +5,7 @@ Trading Mode API endpoints voor het beheren van dry-run, demo en live modes
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.services.trading_mode import TradingMode, trading_mode_service
@@ -89,7 +89,7 @@ async def set_trading_mode(request: SetTradingModeRequest):
                     detail=f"Cannot enable live trading: {validation_message}",
                 )
 
-            logger.warning(f"🔴 LIVE TRADING MODE ACTIVATED!")
+            logger.warning("🔴 LIVE TRADING MODE ACTIVATED!")
 
         # Set the mode
         trading_mode_service.set_mode(mode, request.force_dry_run)

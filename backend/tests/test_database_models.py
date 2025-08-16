@@ -1,10 +1,7 @@
-from unittest.mock import MagicMock, patch
-
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.core.database import get_db
 from app.models.database_models import Base, Portfolio, Position, Trade, User
 
 

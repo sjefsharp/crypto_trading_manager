@@ -32,7 +32,7 @@ class DatabaseAPIKeyService:
                 .filter(
                     APIKey.user_id == self.user_id,
                     APIKey.exchange == "bitvavo",
-                    APIKey.is_active == True,
+                    APIKey.is_active.is_(True),
                 )
                 .first()
             )
@@ -68,7 +68,7 @@ class DatabaseAPIKeyService:
                 .filter(
                     APIKey.user_id == self.user_id,
                     APIKey.exchange == exchange.lower(),
-                    APIKey.is_active == True,
+                    APIKey.is_active.is_(True),
                 )
                 .first()
             )

@@ -4,8 +4,6 @@ Portfolio service module for portfolio management operations
 
 from typing import Any, Dict, List
 
-from sqlalchemy.orm import Session
-
 
 def calculate_portfolio_performance(portfolio_data: Dict[str, Any]) -> Dict[str, Any]:
     """Calculate portfolio performance metrics"""

@@ -2,7 +2,6 @@
 """
 Start script for the Crypto Trading Manager backend
 """
-import os
 import sys
 from pathlib import Path
 

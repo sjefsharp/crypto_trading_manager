@@ -6,7 +6,6 @@ import hashlib
 import hmac
 import json
 import logging
-import os
 import time
 from typing import Any, Dict, List, Optional
 
@@ -155,7 +154,7 @@ class BitvavoAPI:
                         "error": error_json.get("error", error_data),
                         "status_code": response.status_code,
                     }
-                except:
+                except Exception:
                     return {"error": error_data, "status_code": response.status_code}
 
         except httpx.TimeoutException:
@@ -223,7 +222,7 @@ class BitvavoAPI:
         if trading_mode_service.is_dry_run_enabled():
             warning = trading_mode_service.get_mode_warning()
             logger.info(f"{warning}")
-            logger.info(f"[DRY RUN] Returning simulated balance")
+            logger.info("[DRY RUN] Returning simulated balance")
 
             # Return simulated balance
             return trading_mode_service.simulate_balance_response()
@@ -507,7 +506,7 @@ def parse_bitvavo_timestamp(timestamp) -> Optional[Any]:
         if isinstance(timestamp, (int, float)):
             return datetime.fromtimestamp(timestamp / 1000)
         return None
-    except:
+    except Exception:
         return None
 
 

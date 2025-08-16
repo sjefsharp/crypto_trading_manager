@@ -5,12 +5,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.database_models import Trade, User
-from app.services.bitvavo_api_secure import (
-    BitvavoAPI,
-    calculate_stop_loss,
-    calculate_take_profit,
-)
+from app.models.database_models import Trade
+from app.services.bitvavo_api_secure import BitvavoAPI
 
 router = APIRouter()
 

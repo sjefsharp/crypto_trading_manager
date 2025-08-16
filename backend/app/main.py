@@ -1,11 +1,10 @@
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 
-from app.api import market_data, portfolio, trading, trading_mode
+from app.api import api_keys, market_data, portfolio, trading, trading_mode
 from app.core.config import settings
-from app.core.database import Base, engine, get_db
+from app.core.database import Base, engine
 from app.services.trading_mode import trading_mode_service
 
 # Create database tables
@@ -92,9 +91,6 @@ app.include_router(
 app.include_router(
     trading_mode.router, prefix=f"{settings.API_V1_STR}", tags=["trading-mode"]
 )
-
-# Import and include API keys router
-from app.api import api_keys
 
 app.include_router(api_keys.router, prefix=f"{settings.API_V1_STR}", tags=["api-keys"])
 

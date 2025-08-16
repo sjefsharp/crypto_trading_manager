@@ -3,15 +3,14 @@
 Configuration setup script for Crypto Trading Manager
 Run this script to securely configure your API keys
 """
-import os
 import sys
 from pathlib import Path
+
+from app.config.secure_config import get_secure_config, setup_initial_config
 
 # Add the backend directory to Python path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
-
-from app.config.secure_config import get_secure_config, setup_initial_config
 
 
 def main():

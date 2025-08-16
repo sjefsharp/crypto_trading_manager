@@ -2,8 +2,7 @@
 Risk management service module for trading risk assessment and management
 """
 
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 def calculate_position_risk(
@@ -114,7 +113,7 @@ def check_order_risk(
     order: Dict[str, Any], portfolio: Dict[str, Any], market_price: float
 ) -> Dict[str, Any]:
     """Check risk factors for a new order"""
-    order_type = order.get("side", "buy")
+    order.get("side", "buy")
     amount = order.get("amount", 0.0)
     market = order.get("market", "")
 
