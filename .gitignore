@@ -1,0 +1,299 @@
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build
+build/
+dist/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Docker
+.dockerignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Dependency directories
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# ===============================
+# CRYPTO TRADING SPECIFIC FILES
+# ===============================
+
+# Trading credentials and API keys
+config/api_keys.json
+config/trading_credentials.json
+*.credentials
+*.api_keys
+
+# Trading data and logs
+trading_data/
+historical_data/
+backtest_results/
+trading_logs/
+*.trading_log
+*.order_log
+
+# Portfolio and performance data
+portfolio_snapshots/
+performance_reports/
+*.portfolio
+*.performance
+
+# Trading configuration files (may contain sensitive data)
+config/trading_config.json
+config/exchange_config.json
+config/strategy_config.json
+*.secret.json
+
+# Crypto exchange specific
+binance_config.json
+coinbase_config.json
+kraken_config.json
+exchange_*.json
+
+# Trading bot state files
+bot_state/
+*.state
+*.position
+*.balance
+
+# Analysis and research files
+market_analysis/
+technical_analysis/
+research_notes/
+*.analysis
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Trading simulation data
+simulation_data/
+demo_trading_data/
+test_trades/
+
+# Real money trading protection
+production_config/
+live_trading_config/
+real_money/
+
+# ===============================
+# EXTENDED DEVELOPMENT FILES
+# ===============================
+
+# Python additional
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments (additional patterns)
+.venv/
+venv/
+ENV/
+env/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# React/Node.js additional
+frontend/build/
+frontend/dist/
+.cache/
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Testing
+test-results/
+coverage/
+.nyc_output
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# IDE and Editor files (extended)
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+
+# Database files (extended)
+*.db
+*.sqlite
+*.sqlite3
+instance/
+.webassets-cache
+
+# Logs (extended)
+logs/
+*.log
+*.out
+*.err
+
+# OS generated files (extended)
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# Deployment and CI/CD
+.github/secrets/
+deploy/
+deployment/
+.docker/
+docker-compose.override.yml
+
+# Documentation generation
+docs/_build/
+site/
+
+# Monitoring and metrics
+metrics/
+monitoring/
+grafana_data/
+
+# SSL certificates and security
+*.pem
+*.crt
+*.key
+certs/
+ssl/
+
+# Configuration overrides
+local_settings.py
+settings_local.py
+config_local.json
