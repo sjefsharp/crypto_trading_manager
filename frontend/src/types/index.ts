@@ -141,13 +141,31 @@ export interface Transaction {
 }
 
 // Trading types
+export interface TradingModeParameters {
+  max_trade_amount: number;
+  stop_loss_percentage: number;
+  take_profit_percentage: number;
+  max_open_orders: number;
+  min_profit_threshold?: number;
+  [key: string]: unknown;
+}
+
 export interface TradingMode {
   id: number;
   name: string;
   description: string;
   is_active: boolean;
   risk_level: 'LOW' | 'MEDIUM' | 'HIGH';
-  parameters: Record<string, any>;
+  parameters: TradingModeParameters;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Strategy {
+  id: number;
+  name: string;
+  description: string;
+  parameters: TradingModeParameters;
 }
 
 export interface OrderFormData {
@@ -178,12 +196,6 @@ export interface APIKeyFormData {
 }
 
 // Portfolio interfaces
-export interface Portfolio {
-  userId: string;
-  totalValue: number;
-  lastUpdated: string;
-}
-
 export interface PortfolioItem {
   symbol: string;
   name: string;
@@ -235,7 +247,7 @@ export interface PaginatedResponse<T> {
 export interface APIError {
   message: string;
   code?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   response?: {
     data?: {
       detail?: string;

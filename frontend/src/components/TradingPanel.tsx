@@ -304,8 +304,8 @@ const TradingPanel: React.FC = () => {
                     aria-describedby='price-help'
                   />
                   <div id='price-help' className='form-help text-muted'>
-                    Set the maximum price you're willing to pay (buy) or minimum
-                    price to receive (sell)
+                    Set the maximum price you&apos;re willing to pay (buy) or
+                    minimum price to receive (sell)
                   </div>
                 </div>
               )}

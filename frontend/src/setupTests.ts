@@ -22,7 +22,13 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver
-(global as any).IntersectionObserver = class {
+declare global {
+  interface Window {
+    IntersectionObserver: typeof IntersectionObserver;
+  }
+}
+
+(globalThis as unknown as Window).IntersectionObserver = class {
   root = null;
   rootMargin = '';
   thresholds = [];

@@ -686,7 +686,7 @@ const TradingModeSettings: React.FC = () => {
             ) : (
               <div className='empty-form-state'>
                 <p className='text-muted'>
-                  Click "Create New Mode" to get started
+                  Click &quot;Create New Mode&quot; to get started
                 </p>
                 <button
                   className='btn btn--primary'

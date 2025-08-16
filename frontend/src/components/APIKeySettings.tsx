@@ -516,7 +516,7 @@ const APIKeySettings: React.FC = () => {
             ) : (
               <div className='empty-form-state'>
                 <p className='text-muted'>
-                  Click "Add New API Key" to get started
+                  Click &quot;Add New API Key&quot; to get started
                 </p>
                 <button
                   className='btn btn--primary'

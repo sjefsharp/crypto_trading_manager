@@ -47,8 +47,9 @@ const MarketData: React.FC = () => {
           '/api/v1/ticker/24hr'
         );
         setTickers(response.data.data);
-      } catch (err) {
-        console.error('Failed to fetch ticker data:', err);
+      } catch {
+        // Failed to fetch ticker data
+        setTickers([]);
       }
     };
 
@@ -64,8 +65,9 @@ const MarketData: React.FC = () => {
         }
       );
       setCandles(response.data.data);
-    } catch (err) {
-      console.error('Failed to fetch candle data:', err);
+    } catch {
+      // Failed to fetch candle data
+      setCandles([]);
     }
   };
 
