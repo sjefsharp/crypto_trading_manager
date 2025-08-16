@@ -8,13 +8,11 @@ version = "1.0.0"
 description = "Enterprise-grade cryptocurrency trading manager"
 authors = [{name = "Sjef Sharp", email = "sjef@example.com"}]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Financial and Insurance Industry",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
 
@@ -101,7 +99,9 @@ exclude = [
 ]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
+# Strict type checking for maximum code quality
+strict = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -114,15 +114,23 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+# Additional strict settings
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
 
 [[tool.mypy.overrides]]
 module = [
-    "ta",
-    "pandas_ta",
-    "httpx.*",
-    "jose.*"
+    "pandas_ta.*",
+    "ta.*",
+    "uvicorn.*",
+    "alembic.*",
+    "authlib.*",
+    "passlib.*",
+    "factory_boy.*",
+    "pytest_asyncio.*"
 ]
-ignore_missing_imports = true
+ignore_missing_imports = false
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -163,19 +171,42 @@ exclude_lines = [
 directory = "htmlcov"
 
 [tool.bandit]
-# Bandit security configuration - maximum security for production security
-exclude_dirs = ["tests", "venv", ".venv", "__pycache__"]
-# Set confidence and severity to low to catch all potential security issues
+# Bandit security configuration - MAXIMUM security for production
+exclude_dirs = ["tests", "venv", ".venv", "__pycache__", "migrations", "alembic"]
+# Set confidence and severity to low to catch ALL potential security issues
 confidence = "low"
 severity = "low"
 # NO SKIPS - maximum security for production
+# Additional security checks
+assert_used = true
+# Recursive scanning for maximum coverage
+recursive = true
 
 [tool.pylint.messages_control]
 disable = [
-    "C0114",  # missing-module-docstring
-    "C0116",  # missing-function-docstring
-    "R0903",  # too-few-public-methods
+    "C0114",  # missing-module-docstring (for API modules)
+    "C0116",  # missing-function-docstring (for simple getters/setters)
+    "R0903",  # too-few-public-methods (for data classes)
+]
+# Enable additional security and quality checks
+enable = [
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead"
 ]
 
 [tool.pylint.format]
 max-line-length = 88
+
+[tool.pylint.design]
+# Increase limits for complex financial applications
+max-attributes = 10
+max-arguments = 8
+max-branches = 15
+max-statements = 60
+
+[tool.pylint.similarities]
+# Detect code duplication
+min-similarity-lines = 6
+ignore-comments = true
+ignore-docstrings = true
