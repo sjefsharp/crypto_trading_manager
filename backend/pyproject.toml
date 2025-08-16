@@ -163,16 +163,12 @@ exclude_lines = [
 directory = "htmlcov"
 
 [tool.bandit]
-# Bandit security configuration - maximum security for production
+# Bandit security configuration - maximum security for production security
 exclude_dirs = ["tests", "venv", ".venv", "__pycache__"]
 # Set confidence and severity to low to catch all potential security issues
 confidence = "low"
 severity = "low"
-# Only skip specific checks that are false positives in our context
-skips = [
-    "B101",  # assert_used - we use asserts in tests appropriately
-    "B601"   # paramiko_calls - if we need SSH functionality
-]
+# NO SKIPS - maximum security for production
 
 [tool.pylint.messages_control]
 disable = [
