@@ -1,23 +1,23 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import axios from "axios";
-import Dashboard from "../components/Dashboard";
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import axios from 'axios';
+import Dashboard from '../components/Dashboard';
 
 // Mock axios
-vi.mock("axios");
+vi.mock('axios');
 const mockedAxios = axios as any;
 
-describe("Dashboard Component", () => {
+describe('Dashboard Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders dashboard heading", async () => {
+  it('renders dashboard heading', async () => {
     // Mock successful API response
     const mockData = {
       data: {
         data: [
-          { market: "BTC-EUR", base: "BTC", price: 45000, change24h: 2.5 },
+          { market: 'BTC-EUR', base: 'BTC', price: 45000, change24h: 2.5 },
         ],
       },
     };
@@ -27,34 +27,34 @@ describe("Dashboard Component", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("heading", { name: /trading dashboard/i })
+        screen.getByRole('heading', { name: /trading dashboard/i })
       ).toBeInTheDocument();
     });
   });
 
-  it("shows loading state initially", () => {
+  it('shows loading state initially', () => {
     render(<Dashboard />);
-    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
     expect(screen.getByText(/loading dashboard/i)).toBeInTheDocument();
   });
 
-  it("displays error message when API fails", async () => {
-    mockedAxios.get.mockRejectedValueOnce(new Error("API Error"));
+  it('displays error message when API fails', async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error('API Error'));
 
     render(<Dashboard />);
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
     });
   });
 
-  it("displays market data when loaded successfully", async () => {
+  it('displays market data when loaded successfully', async () => {
     const mockData = {
       data: {
         data: [
           {
-            market: "BTC-EUR",
-            base: "BTC",
+            market: 'BTC-EUR',
+            base: 'BTC',
             price: 45000,
             change24h: 2.5,
           },
@@ -69,18 +69,18 @@ describe("Dashboard Component", () => {
     render(<Dashboard />);
 
     await waitFor(() => {
-      expect(screen.getByText("BTC-EUR")).toBeInTheDocument();
+      expect(screen.getByText('BTC-EUR')).toBeInTheDocument();
     });
   });
 
-  it("has proper accessibility attributes", () => {
+  it('has proper accessibility attributes', () => {
     render(<Dashboard />);
 
-    const main = screen.getByRole("main");
-    expect(main).toHaveClass("dashboard");
+    const main = screen.getByRole('main');
+    expect(main).toHaveClass('dashboard');
 
     // Check for proper ARIA labels
-    const loadingStatus = screen.getByRole("status");
-    expect(loadingStatus).toHaveAttribute("aria-label");
+    const loadingStatus = screen.getByRole('status');
+    expect(loadingStatus).toHaveAttribute('aria-label');
   });
 });

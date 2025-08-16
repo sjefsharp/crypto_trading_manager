@@ -1,16 +1,18 @@
-import pytest
 import asyncio
+from unittest.mock import Mock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from unittest.mock import patch, Mock
 
-from app.main import app
-from app.core.database import get_db, Base
 from app.core.config import settings
+from app.core.database import Base, get_db
+from app.main import app
+
 # Import models to register with Base
-from app.models.database_models import User, Portfolio, Trade
+from app.models.database_models import Portfolio, Trade, User
 
 # Test database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -25,6 +27,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 # Create tables
 Base.metadata.create_all(bind=engine)
 
+
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -32,17 +35,19 @@ def override_get_db():
     finally:
         db.close()
 
+
 app.dependency_overrides[get_db] = override_get_db
+
+import asyncio
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, AsyncMock, MagicMock
-import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.main import app
 from app.core.database import Base, get_db
+from app.main import app
 
 
 @pytest.fixture
@@ -57,14 +62,14 @@ def test_db():
     engine = create_engine("sqlite:///:memory:", echo=False)
     Base.metadata.create_all(engine)
     TestingSessionLocal = sessionmaker(bind=engine)
-    
+
     def override_get_db():
         try:
             db = TestingSessionLocal()
             yield db
         finally:
             db.close()
-    
+
     app.dependency_overrides[get_db] = override_get_db
     yield TestingSessionLocal()
     app.dependency_overrides.clear()
@@ -77,7 +82,7 @@ def mock_bitvavo_response():
     return {
         "balance": [
             {"symbol": "EUR", "available": "1000.0", "inOrder": "0.0"},
-            {"symbol": "BTC", "available": "0.1", "inOrder": "0.0"}
+            {"symbol": "BTC", "available": "0.1", "inOrder": "0.0"},
         ],
         "markets": [
             {
@@ -88,7 +93,7 @@ def mock_bitvavo_response():
                 "pricePrecision": 2,
                 "minOrderInBaseAsset": "0.001",
                 "minOrderInQuoteAsset": "10",
-                "orderTypes": ["market", "limit"]
+                "orderTypes": ["market", "limit"],
             }
         ],
         "ticker": {
@@ -98,7 +103,7 @@ def mock_bitvavo_response():
             "bestBid": "44950.0",
             "bestAsk": "45050.0",
             "bestBidSize": "1.0",
-            "bestAskSize": "1.0"
+            "bestAskSize": "1.0",
         },
         "order_response": {
             "orderId": "test-order-123",
@@ -120,29 +125,21 @@ def mock_bitvavo_response():
             "visible": True,
             "timeInForce": "GTC",
             "postOnly": False,
-            "clientOrderId": ""
-        }
+            "clientOrderId": "",
+        },
     }
 
 
-@pytest.fixture  
+@pytest.fixture
 def sample_portfolio_data():
     """Sample portfolio data for testing"""
-    return {
-        "name": "Test Portfolio",
-        "description": "Test portfolio for unit testing"
-    }
+    return {"name": "Test Portfolio", "description": "Test portfolio for unit testing"}
 
 
 @pytest.fixture
 def sample_order_data():
     """Sample order data for testing"""
-    return {
-        "market": "BTC-EUR",
-        "side": "buy", 
-        "order_type": "market",
-        "amount": 0.001
-    }
+    return {"market": "BTC-EUR", "side": "buy", "order_type": "market", "amount": 0.001}
 
 
 # API Mocks
@@ -154,33 +151,28 @@ def mock_bitvavo_api():
     mock_api.api_secret = "test_secret"
     mock_api.base_url = "https://api.bitvavo.com/v2"
     mock_api.rate_limit = 1000
-    
+
     # Mock API methods
     mock_api.test_connection.return_value = {
         "status": "success",
         "message": "Connection successful",
-        "authenticated": True
+        "authenticated": True,
     }
-    
+
     mock_api.get_balance.return_value = [
         {"symbol": "EUR", "available": 1000.0},
-        {"symbol": "BTC", "available": 0.1}
+        {"symbol": "BTC", "available": 0.1},
     ]
-    
-    mock_api.get_markets.return_value = [
-        {"market": "BTC-EUR", "status": "trading"}
-    ]
-    
-    mock_api.get_ticker.return_value = {
-        "market": "BTC-EUR",
-        "last": 45000.0
-    }
-    
+
+    mock_api.get_markets.return_value = [{"market": "BTC-EUR", "status": "trading"}]
+
+    mock_api.get_ticker.return_value = {"market": "BTC-EUR", "last": 45000.0}
+
     mock_api.place_order.return_value = {
         "orderId": "test-order-123",
-        "status": "filled"
+        "status": "filled",
     }
-    
+
     return mock_api
 
 
@@ -216,6 +208,7 @@ def event_loop():
     yield loop
     loop.close()
 
+
 @pytest.fixture
 def db_session():
     """Create a fresh database session for each test"""
@@ -227,32 +220,31 @@ def db_session():
         db.close()
         Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture
 def sample_user_data():
     """Sample user data for testing"""
     return {
         "username": "testuser",
         "email": "test@example.com",
-        "password": "testpassword123"
+        "password": "testpassword123",
     }
+
 
 @pytest.fixture
 def sample_portfolio_data():
     """Sample portfolio data for testing"""
     return {
         "name": "Test Portfolio",
-        "description": "A test portfolio for unit testing"
+        "description": "A test portfolio for unit testing",
     }
+
 
 @pytest.fixture
 def sample_order_data():
     """Sample order data for testing"""
-    return {
-        "market": "BTC-EUR",
-        "side": "buy",
-        "order_type": "market",
-        "amount": 0.001
-    }
+    return {"market": "BTC-EUR", "side": "buy", "order_type": "market", "amount": 0.001}
+
 
 @pytest.fixture
 def mock_bitvavo_response():
@@ -267,7 +259,7 @@ def mock_bitvavo_response():
             "volumeQuote": "4525000.00",
             "bid": "44999.99",
             "ask": "45000.01",
-            "timestamp": 1692115200000
+            "timestamp": 1692115200000,
         },
         "markets": [
             {
@@ -278,20 +270,12 @@ def mock_bitvavo_response():
                 "pricePrecision": 2,
                 "minOrderInQuoteAsset": "10",
                 "minOrderInBaseAsset": "0.001",
-                "orderTypes": ["market", "limit"]
+                "orderTypes": ["market", "limit"],
             }
         ],
         "balance": [
-            {
-                "symbol": "EUR",
-                "available": "1000.00",
-                "inOrder": "0.00"
-            },
-            {
-                "symbol": "BTC",
-                "available": "0.05",
-                "inOrder": "0.00"
-            }
+            {"symbol": "EUR", "available": "1000.00", "inOrder": "0.00"},
+            {"symbol": "BTC", "available": "0.05", "inOrder": "0.00"},
         ],
         "order_response": {
             "orderId": "test-order-123",
@@ -304,6 +288,6 @@ def mock_bitvavo_response():
             "amount": "0.001",
             "amountRemaining": "0.001",
             "onHold": "45.00",
-            "onHoldCurrency": "EUR"
-        }
+            "onHoldCurrency": "EUR",
+        },
     }

@@ -1,12 +1,24 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.database import Base
+
 
 class User(Base):
     """User model for authentication and settings"""
+
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
@@ -14,19 +26,25 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Relationships
-    api_keys = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
-    portfolios = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
+    api_keys = relationship(
+        "APIKey", back_populates="user", cascade="all, delete-orphan"
+    )
+    portfolios = relationship(
+        "Portfolio", back_populates="user", cascade="all, delete-orphan"
+    )
     trades = relationship("Trade", back_populates="user", cascade="all, delete-orphan")
-    
+
     def __str__(self):
         return f"User(username={self.username})"
 
+
 class APIKey(Base):
     """Encrypted API keys for different exchanges"""
+
     __tablename__ = "api_keys"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     exchange = Column(String(50), nullable=False)  # bitvavo, binance, etc.
@@ -35,14 +53,16 @@ class APIKey(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Relationships
     user = relationship("User", back_populates="api_keys")
 
+
 class Portfolio(Base):
     """Portfolio tracking"""
+
     __tablename__ = "portfolios"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String(100), nullable=False)
@@ -53,27 +73,29 @@ class Portfolio(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Relationships
     user = relationship("User", back_populates="portfolios")
     positions = relationship("Position", back_populates="portfolio")
     trades = relationship("Trade", back_populates="portfolio")
-    
+
     def __init__(self, **kwargs):
         # Handle balance aliasing
-        if 'initial_balance' in kwargs and 'current_balance' not in kwargs:
-            kwargs['current_balance'] = kwargs['initial_balance']
-        elif 'current_balance' in kwargs and 'initial_balance' not in kwargs:
-            kwargs['initial_balance'] = kwargs['current_balance']
+        if "initial_balance" in kwargs and "current_balance" not in kwargs:
+            kwargs["current_balance"] = kwargs["initial_balance"]
+        elif "current_balance" in kwargs and "initial_balance" not in kwargs:
+            kwargs["initial_balance"] = kwargs["current_balance"]
         super().__init__(**kwargs)
-    
+
     def __str__(self):
         return f"Portfolio(name={self.name})"
 
+
 class Position(Base):
     """Current positions in portfolio"""
+
     __tablename__ = "positions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False)
     symbol = Column(String(20), nullable=False)  # BTC, ETH, etc.
@@ -84,22 +106,24 @@ class Position(Base):
     unrealized_pnl = Column(Float, default=0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Relationships
     portfolio = relationship("Portfolio", back_populates="positions")
-    
+
     def __init__(self, **kwargs):
         # Handle amount/quantity aliasing
-        if 'amount' in kwargs and 'quantity' not in kwargs:
-            kwargs['quantity'] = kwargs['amount']
-        elif 'quantity' in kwargs and 'amount' not in kwargs:
-            kwargs['amount'] = kwargs['quantity']
+        if "amount" in kwargs and "quantity" not in kwargs:
+            kwargs["quantity"] = kwargs["amount"]
+        elif "quantity" in kwargs and "amount" not in kwargs:
+            kwargs["amount"] = kwargs["quantity"]
         super().__init__(**kwargs)
+
 
 class Trade(Base):
     """Trade execution records"""
+
     __tablename__ = "trades"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     portfolio_id = Column(Integer, ForeignKey("portfolios.id"))
@@ -113,64 +137,72 @@ class Trade(Base):
     price = Column(Float)
     filled_quantity = Column(Float, default=0.0)
     filled_price = Column(Float)
-    status = Column(String(20), default="pending")  # pending, filled, cancelled, rejected
+    status = Column(
+        String(20), default="pending"
+    )  # pending, filled, cancelled, rejected
     exchange_order_id = Column(String(100))
     order_id = Column(String(100))  # Alias for exchange_order_id for test compatibility
     fee = Column(Float, default=0.0)  # Alias for fees for test compatibility
     fees = Column(Float, default=0.0)  # Keep both for backward compatibility
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Relationships
     user = relationship("User", back_populates="trades")
     portfolio = relationship("Portfolio", back_populates="trades")
-    
+
     def __init__(self, **kwargs):
         # Handle field aliasing for test compatibility
-        if 'amount' in kwargs and 'quantity' not in kwargs:
-            kwargs['quantity'] = kwargs['amount']
-        elif 'quantity' in kwargs and 'amount' not in kwargs:
-            kwargs['amount'] = kwargs['quantity']
-            
-        if 'market' in kwargs and 'symbol' not in kwargs:
+        if "amount" in kwargs and "quantity" not in kwargs:
+            kwargs["quantity"] = kwargs["amount"]
+        elif "quantity" in kwargs and "amount" not in kwargs:
+            kwargs["amount"] = kwargs["quantity"]
+
+        if "market" in kwargs and "symbol" not in kwargs:
             # Extract symbol from market (BTC-EUR -> BTC)
-            kwargs['symbol'] = kwargs['market'].split('-')[0]
-        elif 'symbol' in kwargs and 'market' not in kwargs:
-            kwargs['market'] = f"{kwargs['symbol']}-EUR"  # Default to EUR pair
-            
-        if 'order_id' in kwargs and 'exchange_order_id' not in kwargs:
-            kwargs['exchange_order_id'] = kwargs['order_id']
-        elif 'exchange_order_id' in kwargs and 'order_id' not in kwargs:
-            kwargs['order_id'] = kwargs['exchange_order_id']
-            
-        if 'fee' in kwargs and 'fees' not in kwargs:
-            kwargs['fees'] = kwargs['fee']
-        elif 'fees' in kwargs and 'fee' not in kwargs:
-            kwargs['fee'] = kwargs['fees']
-            
+            kwargs["symbol"] = kwargs["market"].split("-")[0]
+        elif "symbol" in kwargs and "market" not in kwargs:
+            kwargs["market"] = f"{kwargs['symbol']}-EUR"  # Default to EUR pair
+
+        if "order_id" in kwargs and "exchange_order_id" not in kwargs:
+            kwargs["exchange_order_id"] = kwargs["order_id"]
+        elif "exchange_order_id" in kwargs and "order_id" not in kwargs:
+            kwargs["order_id"] = kwargs["exchange_order_id"]
+
+        if "fee" in kwargs and "fees" not in kwargs:
+            kwargs["fees"] = kwargs["fee"]
+        elif "fees" in kwargs and "fee" not in kwargs:
+            kwargs["fee"] = kwargs["fees"]
+
         super().__init__(**kwargs)
-    
+
     def __str__(self):
         return f"Trade(market={self.market}, side={self.side}, amount={self.amount})"
 
+
 class Strategy(Base):
     """Trading strategies configuration"""
+
     __tablename__ = "strategies"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String(100), nullable=False)
     description = Column(Text)
-    strategy_type = Column(String(50), nullable=False)  # dca, stop_loss, technical_analysis
+    strategy_type = Column(
+        String(50), nullable=False
+    )  # dca, stop_loss, technical_analysis
     config = Column(Text)  # JSON configuration
     is_active = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+
 class MarketData(Base):
     """Historical market data storage"""
+
     __tablename__ = "market_data"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     symbol = Column(String(20), nullable=False, index=True)
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
@@ -180,11 +212,13 @@ class MarketData(Base):
     close_price = Column(Float, nullable=False)
     volume = Column(Float, nullable=False)
     source = Column(String(50), default="bitvavo")
-    
+
+
 class TechnicalIndicator(Base):
     """Calculated technical indicators"""
+
     __tablename__ = "technical_indicators"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     symbol = Column(String(20), nullable=False, index=True)
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True)

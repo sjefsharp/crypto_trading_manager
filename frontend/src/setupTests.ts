@@ -1,5 +1,5 @@
-import "@testing-library/jest-dom";
-import { beforeEach } from "vitest";
+import '@testing-library/jest-dom';
+import { beforeEach } from 'vitest';
 
 // Global test setup
 beforeEach(() => {
@@ -7,7 +7,7 @@ beforeEach(() => {
 });
 
 // Mock environment variables if needed
-Object.defineProperty(window, "matchMedia", {
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string) => ({
     matches: false,
@@ -24,7 +24,7 @@ Object.defineProperty(window, "matchMedia", {
 // Mock IntersectionObserver
 (global as any).IntersectionObserver = class {
   root = null;
-  rootMargin = "";
+  rootMargin = '';
   thresholds = [];
 
   constructor() {}

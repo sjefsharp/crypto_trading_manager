@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Balance, PortfolioStats, APIError, Transaction } from "@/types";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Balance, PortfolioStats, APIError, Transaction } from '@/types';
 
 const Portfolio: React.FC = () => {
   const [balances, setBalances] = useState<Balance[]>([]);
@@ -9,8 +9,8 @@ const Portfolio: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedView, setSelectedView] = useState<
-    "overview" | "balances" | "transactions"
-  >("overview");
+    'overview' | 'balances' | 'transactions'
+  >('overview');
 
   useEffect(() => {
     const fetchPortfolioData = async (): Promise<void> => {
@@ -19,8 +19,8 @@ const Portfolio: React.FC = () => {
         setError(null);
 
         const [balancesResponse, transactionsResponse] = await Promise.all([
-          axios.get<{ data: Balance[] }>("/api/v1/balances"),
-          axios.get<{ data: Transaction[] }>("/api/v1/transactions?limit=50"),
+          axios.get<{ data: Balance[] }>('/api/v1/balances'),
+          axios.get<{ data: Transaction[] }>('/api/v1/transactions?limit=50'),
         ]);
 
         const balancesData = balancesResponse.data.data;
@@ -48,7 +48,7 @@ const Portfolio: React.FC = () => {
           totalChange24h,
           changePercentage,
           totalAssets: balancesData.filter(
-            (b) => parseFloat(b.available) > 0 || parseFloat(b.in_order) > 0
+            b => parseFloat(b.available) > 0 || parseFloat(b.in_order) > 0
           ).length,
           totalInOrder: balancesData.reduce(
             (sum, balance) => sum + parseFloat(balance.in_order),
@@ -58,8 +58,8 @@ const Portfolio: React.FC = () => {
       } catch (err) {
         const error = err as APIError;
         setError(
-          "Failed to fetch portfolio data: " +
-            (error.message || "Unknown error")
+          'Failed to fetch portfolio data: ' +
+            (error.message || 'Unknown error')
         );
       } finally {
         setLoading(false);
@@ -70,84 +70,84 @@ const Portfolio: React.FC = () => {
   }, []);
 
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("nl-NL", {
-      style: "currency",
-      currency: "EUR",
+    return new Intl.NumberFormat('nl-NL', {
+      style: 'currency',
+      currency: 'EUR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
   };
 
   const formatCrypto = (amount: string | number, symbol: string): string => {
-    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
     return (
-      new Intl.NumberFormat("nl-NL", {
+      new Intl.NumberFormat('nl-NL', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 8,
       }).format(numAmount) +
-      " " +
+      ' ' +
       symbol
     );
   };
 
   const formatPercentage = (value: number): string => {
-    return new Intl.NumberFormat("nl-NL", {
-      style: "percent",
+    return new Intl.NumberFormat('nl-NL', {
+      style: 'percent',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-      signDisplay: "always",
+      signDisplay: 'always',
     }).format(value / 100);
   };
 
   const formatDate = (dateString: string): string => {
-    return new Intl.DateTimeFormat("nl-NL", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Intl.DateTimeFormat('nl-NL', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(new Date(dateString));
   };
 
   const getChangeColor = (value: number): string => {
-    if (value > 0) return "text-success";
-    if (value < 0) return "text-error";
-    return "text-neutral";
+    if (value > 0) return 'text-success';
+    if (value < 0) return 'text-error';
+    return 'text-neutral';
   };
 
   if (loading) {
     return (
-      <main className="portfolio" aria-live="polite">
+      <main className='portfolio' aria-live='polite'>
         <div
-          className="loading-container"
-          role="status"
-          aria-label="Loading portfolio"
+          className='loading-container'
+          role='status'
+          aria-label='Loading portfolio'
         >
-          <div className="spinner" aria-hidden="true"></div>
-          <span className="sr-only">Loading portfolio data...</span>
+          <div className='spinner' aria-hidden='true'></div>
+          <span className='sr-only'>Loading portfolio data...</span>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="portfolio">
-      <div className="container">
-        <header className="portfolio-header">
+    <main className='portfolio'>
+      <div className='container'>
+        <header className='portfolio-header'>
           <h1>Portfolio Overview</h1>
-          <p className="subtitle">
+          <p className='subtitle'>
             Track your cryptocurrency investments and performance
           </p>
         </header>
 
         {error && (
-          <div className="alert alert--error" role="alert">
+          <div className='alert alert--error' role='alert'>
             <strong>Error:</strong> {error}
             <button
-              className="btn btn--secondary"
+              className='btn btn--secondary'
               onClick={() => setError(null)}
-              aria-label="Dismiss error message"
-              type="button"
+              aria-label='Dismiss error message'
+              type='button'
             >
               ×
             </button>
@@ -156,69 +156,69 @@ const Portfolio: React.FC = () => {
 
         {/* Portfolio Navigation */}
         <nav
-          className="portfolio-nav"
-          role="tablist"
-          aria-label="Portfolio sections"
+          className='portfolio-nav'
+          role='tablist'
+          aria-label='Portfolio sections'
         >
           <button
-            role="tab"
-            aria-selected={selectedView === "overview"}
-            aria-controls="overview-panel"
+            role='tab'
+            aria-selected={selectedView === 'overview'}
+            aria-controls='overview-panel'
             className={`nav-tab ${
-              selectedView === "overview" ? "nav-tab--active" : ""
+              selectedView === 'overview' ? 'nav-tab--active' : ''
             }`}
-            onClick={() => setSelectedView("overview")}
-            type="button"
+            onClick={() => setSelectedView('overview')}
+            type='button'
           >
             Overview
           </button>
           <button
-            role="tab"
-            aria-selected={selectedView === "balances"}
-            aria-controls="balances-panel"
+            role='tab'
+            aria-selected={selectedView === 'balances'}
+            aria-controls='balances-panel'
             className={`nav-tab ${
-              selectedView === "balances" ? "nav-tab--active" : ""
+              selectedView === 'balances' ? 'nav-tab--active' : ''
             }`}
-            onClick={() => setSelectedView("balances")}
-            type="button"
+            onClick={() => setSelectedView('balances')}
+            type='button'
           >
             Balances
           </button>
           <button
-            role="tab"
-            aria-selected={selectedView === "transactions"}
-            aria-controls="transactions-panel"
+            role='tab'
+            aria-selected={selectedView === 'transactions'}
+            aria-controls='transactions-panel'
             className={`nav-tab ${
-              selectedView === "transactions" ? "nav-tab--active" : ""
+              selectedView === 'transactions' ? 'nav-tab--active' : ''
             }`}
-            onClick={() => setSelectedView("transactions")}
-            type="button"
+            onClick={() => setSelectedView('transactions')}
+            type='button'
           >
             Transactions
           </button>
         </nav>
 
         {/* Overview Panel */}
-        {selectedView === "overview" && (
+        {selectedView === 'overview' && (
           <div
-            role="tabpanel"
-            id="overview-panel"
-            aria-labelledby="overview-tab"
+            role='tabpanel'
+            id='overview-panel'
+            aria-labelledby='overview-tab'
           >
             {stats && (
               <section
-                className="portfolio-stats"
-                aria-labelledby="stats-heading"
+                className='portfolio-stats'
+                aria-labelledby='stats-heading'
               >
-                <h2 id="stats-heading" className="sr-only">
+                <h2 id='stats-heading' className='sr-only'>
                   Portfolio Statistics
                 </h2>
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-header">
-                      <h3 className="stat-title">Total Value</h3>
+                <div className='stats-grid'>
+                  <div className='stat-card'>
+                    <div className='stat-header'>
+                      <h3 className='stat-title'>Total Value</h3>
                     </div>
-                    <div className="stat-value">
+                    <div className='stat-value'>
                       {formatCurrency(stats.totalValue)}
                     </div>
                     <div
@@ -231,24 +231,24 @@ const Portfolio: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="stat-card">
-                    <div className="stat-header">
-                      <h3 className="stat-title">Total Assets</h3>
+                  <div className='stat-card'>
+                    <div className='stat-header'>
+                      <h3 className='stat-title'>Total Assets</h3>
                     </div>
-                    <div className="stat-value">{stats.totalAssets}</div>
-                    <div className="stat-subtitle text-muted">
+                    <div className='stat-value'>{stats.totalAssets}</div>
+                    <div className='stat-subtitle text-muted'>
                       Active holdings
                     </div>
                   </div>
 
-                  <div className="stat-card">
-                    <div className="stat-header">
-                      <h3 className="stat-title">In Orders</h3>
+                  <div className='stat-card'>
+                    <div className='stat-header'>
+                      <h3 className='stat-title'>In Orders</h3>
                     </div>
-                    <div className="stat-value">
+                    <div className='stat-value'>
                       {formatCurrency(stats.totalInOrder)}
                     </div>
-                    <div className="stat-subtitle text-muted">
+                    <div className='stat-subtitle text-muted'>
                       Locked in trading
                     </div>
                   </div>
@@ -257,48 +257,48 @@ const Portfolio: React.FC = () => {
             )}
 
             {/* Top Holdings */}
-            <section className="card" aria-labelledby="top-holdings-heading">
-              <header className="card-header">
-                <h2 id="top-holdings-heading">Top Holdings</h2>
-                <p className="text-muted">
+            <section className='card' aria-labelledby='top-holdings-heading'>
+              <header className='card-header'>
+                <h2 id='top-holdings-heading'>Top Holdings</h2>
+                <p className='text-muted'>
                   Your largest cryptocurrency positions
                 </p>
               </header>
 
               {balances.length === 0 ? (
-                <div className="empty-state">
-                  <p className="text-muted">No balances found</p>
-                  <p className="text-muted">
+                <div className='empty-state'>
+                  <p className='text-muted'>No balances found</p>
+                  <p className='text-muted'>
                     Start trading to build your portfolio
                   </p>
                 </div>
               ) : (
-                <div className="table-container">
-                  <table role="table" aria-label="Top cryptocurrency holdings">
+                <div className='table-container'>
+                  <table role='table' aria-label='Top cryptocurrency holdings'>
                     <thead>
                       <tr>
-                        <th scope="col">Asset</th>
-                        <th scope="col">Balance</th>
-                        <th scope="col">Value (EUR)</th>
-                        <th scope="col">24h Change</th>
-                        <th scope="col">Allocation</th>
+                        <th scope='col'>Asset</th>
+                        <th scope='col'>Balance</th>
+                        <th scope='col'>Value (EUR)</th>
+                        <th scope='col'>24h Change</th>
+                        <th scope='col'>Allocation</th>
                       </tr>
                     </thead>
                     <tbody>
                       {balances
-                        .filter((balance) => balance.value > 1)
+                        .filter(balance => balance.value > 1)
                         .sort((a, b) => b.value - a.value)
                         .slice(0, 10)
-                        .map((balance) => {
+                        .map(balance => {
                           const allocation = stats
                             ? (balance.value / stats.totalValue) * 100
                             : 0;
                           return (
                             <tr key={balance.symbol}>
                               <td>
-                                <div className="asset-info">
+                                <div className='asset-info'>
                                   <strong>{balance.symbol}</strong>
-                                  <div className="text-muted text-sm">
+                                  <div className='text-muted text-sm'>
                                     {balance.name}
                                   </div>
                                 </div>
@@ -322,15 +322,15 @@ const Portfolio: React.FC = () => {
                                 </span>
                               </td>
                               <td>
-                                <div className="allocation">
+                                <div className='allocation'>
                                   <span>{allocation.toFixed(1)}%</span>
-                                  <div className="allocation-bar">
+                                  <div className='allocation-bar'>
                                     <div
-                                      className="allocation-fill"
+                                      className='allocation-fill'
                                       style={{
                                         width: `${Math.min(allocation, 100)}%`,
                                       }}
-                                      aria-hidden="true"
+                                      aria-hidden='true'
                                     ></div>
                                   </div>
                                 </div>
@@ -347,56 +347,56 @@ const Portfolio: React.FC = () => {
         )}
 
         {/* Balances Panel */}
-        {selectedView === "balances" && (
+        {selectedView === 'balances' && (
           <div
-            role="tabpanel"
-            id="balances-panel"
-            aria-labelledby="balances-tab"
+            role='tabpanel'
+            id='balances-panel'
+            aria-labelledby='balances-tab'
           >
-            <section className="card" aria-labelledby="all-balances-heading">
-              <header className="card-header">
-                <h2 id="all-balances-heading">All Balances</h2>
-                <p className="text-muted">
+            <section className='card' aria-labelledby='all-balances-heading'>
+              <header className='card-header'>
+                <h2 id='all-balances-heading'>All Balances</h2>
+                <p className='text-muted'>
                   Complete overview of your cryptocurrency holdings
                 </p>
               </header>
 
               {balances.length === 0 ? (
-                <div className="empty-state">
-                  <p className="text-muted">No balances found</p>
+                <div className='empty-state'>
+                  <p className='text-muted'>No balances found</p>
                 </div>
               ) : (
-                <div className="table-container">
-                  <table role="table" aria-label="All cryptocurrency balances">
+                <div className='table-container'>
+                  <table role='table' aria-label='All cryptocurrency balances'>
                     <thead>
                       <tr>
-                        <th scope="col">Asset</th>
-                        <th scope="col">Available</th>
-                        <th scope="col">In Order</th>
-                        <th scope="col">Total</th>
-                        <th scope="col">Value (EUR)</th>
-                        <th scope="col">24h Change</th>
+                        <th scope='col'>Asset</th>
+                        <th scope='col'>Available</th>
+                        <th scope='col'>In Order</th>
+                        <th scope='col'>Total</th>
+                        <th scope='col'>Value (EUR)</th>
+                        <th scope='col'>24h Change</th>
                       </tr>
                     </thead>
                     <tbody>
                       {balances
                         .filter(
-                          (balance) =>
+                          balance =>
                             parseFloat(balance.available) > 0 ||
                             parseFloat(balance.in_order) > 0 ||
                             balance.value > 0
                         )
                         .sort((a, b) => b.value - a.value)
-                        .map((balance) => {
+                        .map(balance => {
                           const total =
                             parseFloat(balance.available) +
                             parseFloat(balance.in_order);
                           return (
                             <tr key={balance.symbol}>
                               <td>
-                                <div className="asset-info">
+                                <div className='asset-info'>
                                   <strong>{balance.symbol}</strong>
-                                  <div className="text-muted text-sm">
+                                  <div className='text-muted text-sm'>
                                     {balance.name}
                                   </div>
                                 </div>
@@ -439,43 +439,43 @@ const Portfolio: React.FC = () => {
         )}
 
         {/* Transactions Panel */}
-        {selectedView === "transactions" && (
+        {selectedView === 'transactions' && (
           <div
-            role="tabpanel"
-            id="transactions-panel"
-            aria-labelledby="transactions-tab"
+            role='tabpanel'
+            id='transactions-panel'
+            aria-labelledby='transactions-tab'
           >
-            <section className="card" aria-labelledby="transactions-heading">
-              <header className="card-header">
-                <h2 id="transactions-heading">Recent Transactions</h2>
-                <p className="text-muted">
+            <section className='card' aria-labelledby='transactions-heading'>
+              <header className='card-header'>
+                <h2 id='transactions-heading'>Recent Transactions</h2>
+                <p className='text-muted'>
                   Your latest trading activity and transfers
                 </p>
               </header>
 
               {transactions.length === 0 ? (
-                <div className="empty-state">
-                  <p className="text-muted">No transactions found</p>
-                  <p className="text-muted">
+                <div className='empty-state'>
+                  <p className='text-muted'>No transactions found</p>
+                  <p className='text-muted'>
                     Your trading history will appear here
                   </p>
                 </div>
               ) : (
-                <div className="table-container">
-                  <table role="table" aria-label="Recent transactions">
+                <div className='table-container'>
+                  <table role='table' aria-label='Recent transactions'>
                     <thead>
                       <tr>
-                        <th scope="col">Date</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Market</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Total</th>
-                        <th scope="col">Status</th>
+                        <th scope='col'>Date</th>
+                        <th scope='col'>Type</th>
+                        <th scope='col'>Market</th>
+                        <th scope='col'>Amount</th>
+                        <th scope='col'>Price</th>
+                        <th scope='col'>Total</th>
+                        <th scope='col'>Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {transactions.map((transaction) => (
+                      {transactions.map(transaction => (
                         <tr key={transaction.id}>
                           <td>
                             <time dateTime={transaction.createdAt}>
@@ -485,9 +485,9 @@ const Portfolio: React.FC = () => {
                           <td>
                             <span
                               className={
-                                transaction.side === "buy"
-                                  ? "text-success"
-                                  : "text-error"
+                                transaction.side === 'buy'
+                                  ? 'text-success'
+                                  : 'text-error'
                               }
                             >
                               {transaction.side.toUpperCase()}
@@ -499,7 +499,7 @@ const Portfolio: React.FC = () => {
                           <td>
                             {formatCrypto(
                               transaction.amount,
-                              transaction.market.split("-")[0]
+                              transaction.market.split('-')[0]
                             )}
                           </td>
                           <td>

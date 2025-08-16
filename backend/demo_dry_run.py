@@ -1,18 +1,20 @@
-
 """
 Demonstratie script voor dry-run functionaliteit
 Test hoe de trading mode API en simulatie werkt
 """
-import requests
+
 import json
+
+import requests
 
 # Base URL voor de API (lokaal)
 BASE_URL = "http://localhost:8000"
 
+
 def test_trading_mode_api():
     """Test de trading mode API endpoints"""
     print("=== TRADING MODE API DEMONSTRATIE ===\n")
-    
+
     # 1. Check huidige status
     print("1. Huidige trading mode status:")
     try:
@@ -27,9 +29,9 @@ def test_trading_mode_api():
             print(f"   Fout: {response.status_code}")
     except Exception as e:
         print(f"   Fout bij status check: {e}")
-    
-    print("\n" + "="*50)
-    
+
+    print("\n" + "=" * 50)
+
     # 2. Test mode wisselen naar demo
     print("\n2. Wisselen naar DEMO mode:")
     try:
@@ -44,9 +46,9 @@ def test_trading_mode_api():
             print(f"   Fout: {response.status_code} - {response.text}")
     except Exception as e:
         print(f"   Fout bij mode switch: {e}")
-    
-    print("\n" + "="*50)
-    
+
+    print("\n" + "=" * 50)
+
     # 3. Test live trading validatie
     print("\n3. Live trading validatie:")
     try:
@@ -60,9 +62,9 @@ def test_trading_mode_api():
             print(f"   Fout: {response.status_code}")
     except Exception as e:
         print(f"   Fout bij validatie: {e}")
-    
-    print("\n" + "="*50)
-    
+
+    print("\n" + "=" * 50)
+
     # 4. Test emergency dry-run enable
     print("\n4. Emergency dry-run enable:")
     try:
@@ -75,31 +77,35 @@ def test_trading_mode_api():
             print(f"   Fout: {response.status_code}")
     except Exception as e:
         print(f"   Fout bij emergency enable: {e}")
-    
-    print("\n" + "="*50)
+
+    print("\n" + "=" * 50)
+
 
 def test_order_simulation():
     """Test order simulatie in dry-run mode"""
     print("\n5. Order simulatie test:")
     try:
         # Eerst zorgen dat we in dry-run mode zijn
-        requests.post(f"{BASE_URL}/api/v1/trading-mode/set", 
-                     json={"mode": "dry_run", "force_dry_run": True})
-        
+        requests.post(
+            f"{BASE_URL}/api/v1/trading-mode/set",
+            json={"mode": "dry_run", "force_dry_run": True},
+        )
+
         # Test een order plaatsen
         order_data = {
             "market": "BTC-EUR",
             "side": "buy",
             "order_type": "market",
-            "amount": 0.001
+            "amount": 0.001,
         }
-        
+
         # Hier zouden we een order endpoint kunnen testen als die er is
         print(f"   Order data: {json.dumps(order_data, indent=2)}")
         print("   (In dry-run mode zou dit een gesimuleerde response geven)")
-        
+
     except Exception as e:
         print(f"   Fout bij order simulatie: {e}")
+
 
 def test_health_check():
     """Test health check met trading mode info"""
@@ -116,16 +122,17 @@ def test_health_check():
     except Exception as e:
         print(f"   Fout bij health check: {e}")
 
+
 if __name__ == "__main__":
     print("Starting Trading Mode Demonstratie...")
     print("Zorg dat de server draait met: uvicorn app.main:app --reload")
     print()
-    
+
     test_trading_mode_api()
     test_order_simulation()
     test_health_check()
-    
-    print("\n" + "="*50)
+
+    print("\n" + "=" * 50)
     print("Demonstratie voltooid!")
     print("\nKenmerken van het dry-run systeem:")
     print("- Standaard in DRY_RUN mode voor veiligheid")

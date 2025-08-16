@@ -1,5 +1,5 @@
 /* Import our modern accessibility-compliant CSS framework */
-@import "./styles/globals.css";
+@import './styles/globals.css';
 
 * {
   box-sizing: border-box;

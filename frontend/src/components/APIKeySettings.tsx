@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   APIKey,
   APIKeyFormData,
   APIError,
   InputChangeHandler,
   FormSubmitHandler,
-} from "@/types";
+} from '@/types';
 
 const APIKeySettings: React.FC = () => {
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
@@ -16,10 +16,10 @@ const APIKeySettings: React.FC = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [editingKey, setEditingKey] = useState<APIKey | null>(null);
   const [formData, setFormData] = useState<APIKeyFormData>({
-    name: "",
-    apiKey: "",
-    apiSecret: "",
-    exchange: "bitvavo",
+    name: '',
+    apiKey: '',
+    apiSecret: '',
+    exchange: 'bitvavo',
     isActive: true,
   });
 
@@ -33,46 +33,46 @@ const APIKeySettings: React.FC = () => {
       setError(null);
 
       const response = await axios.get<{ data: APIKey[] }>(
-        "/api/v1/settings/api-keys"
+        '/api/v1/settings/api-keys'
       );
       setApiKeys(response.data.data);
     } catch (err) {
       const error = err as APIError;
       setError(
-        "Failed to fetch API keys: " + (error.message || "Unknown error")
+        'Failed to fetch API keys: ' + (error.message || 'Unknown error')
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange: InputChangeHandler = (e) => {
+  const handleInputChange: InputChangeHandler = e => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
-      setError("Please enter a name for this API key");
+      setError('Please enter a name for this API key');
       return false;
     }
     if (!formData.apiKey.trim()) {
-      setError("Please enter your API key");
+      setError('Please enter your API key');
       return false;
     }
     if (!formData.apiSecret.trim()) {
-      setError("Please enter your API secret");
+      setError('Please enter your API secret');
       return false;
     }
     return true;
   };
 
-  const handleSubmit: FormSubmitHandler = async (e) => {
+  const handleSubmit: FormSubmitHandler = async e => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -86,19 +86,17 @@ const APIKeySettings: React.FC = () => {
           `/api/v1/settings/api-keys/${editingKey.id}`,
           formData
         );
-        setApiKeys((prev) =>
-          prev.map((key) =>
-            key.id === editingKey.id ? response.data.data : key
-          )
+        setApiKeys(prev =>
+          prev.map(key => (key.id === editingKey.id ? response.data.data : key))
         );
-        setSuccess("API key updated successfully");
+        setSuccess('API key updated successfully');
       } else {
         const response = await axios.post<{ data: APIKey }>(
-          "/api/v1/settings/api-keys",
+          '/api/v1/settings/api-keys',
           formData
         );
-        setApiKeys((prev) => [...prev, response.data.data]);
-        setSuccess("API key added successfully");
+        setApiKeys(prev => [...prev, response.data.data]);
+        setSuccess('API key added successfully');
       }
 
       resetForm();
@@ -107,17 +105,17 @@ const APIKeySettings: React.FC = () => {
       setError(
         error.response?.data?.detail ||
           error.message ||
-          `Failed to ${editingKey ? "update" : "add"} API key`
+          `Failed to ${editingKey ? 'update' : 'add'} API key`
       );
     }
   };
 
   const resetForm = (): void => {
     setFormData({
-      name: "",
-      apiKey: "",
-      apiSecret: "",
-      exchange: "bitvavo",
+      name: '',
+      apiKey: '',
+      apiSecret: '',
+      exchange: 'bitvavo',
       isActive: true,
     });
     setEditingKey(null);
@@ -128,7 +126,7 @@ const APIKeySettings: React.FC = () => {
     setFormData({
       name: apiKey.name,
       apiKey: apiKey.apiKey,
-      apiSecret: "", // Don't populate secret for security
+      apiSecret: '', // Don't populate secret for security
       exchange: apiKey.exchange,
       isActive: apiKey.isActive,
     });
@@ -139,7 +137,7 @@ const APIKeySettings: React.FC = () => {
   const handleDelete = async (id: string): Promise<void> => {
     if (
       !window.confirm(
-        "Are you sure you want to delete this API key? This action cannot be undone."
+        'Are you sure you want to delete this API key? This action cannot be undone.'
       )
     ) {
       return;
@@ -148,14 +146,14 @@ const APIKeySettings: React.FC = () => {
     try {
       setError(null);
       await axios.delete(`/api/v1/settings/api-keys/${id}`);
-      setApiKeys((prev) => prev.filter((key) => key.id !== id));
-      setSuccess("API key deleted successfully");
+      setApiKeys(prev => prev.filter(key => key.id !== id));
+      setSuccess('API key deleted successfully');
     } catch (err) {
       const error = err as APIError;
       setError(
         error.response?.data?.detail ||
           error.message ||
-          "Failed to delete API key"
+          'Failed to delete API key'
       );
     }
   };
@@ -169,29 +167,29 @@ const APIKeySettings: React.FC = () => {
           isActive: !isActive,
         }
       );
-      setApiKeys((prev) =>
-        prev.map((key) => (key.id === id ? response.data.data : key))
+      setApiKeys(prev =>
+        prev.map(key => (key.id === id ? response.data.data : key))
       );
       setSuccess(
-        `API key ${!isActive ? "activated" : "deactivated"} successfully`
+        `API key ${!isActive ? 'activated' : 'deactivated'} successfully`
       );
     } catch (err) {
       const error = err as APIError;
       setError(
         error.response?.data?.detail ||
           error.message ||
-          "Failed to update API key status"
+          'Failed to update API key status'
       );
     }
   };
 
   const formatDate = (dateString: string): string => {
-    return new Intl.DateTimeFormat("nl-NL", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Intl.DateTimeFormat('nl-NL', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(new Date(dateString));
   };
 
@@ -199,44 +197,44 @@ const APIKeySettings: React.FC = () => {
     if (key.length <= 8) return key;
     return (
       key.substring(0, 4) +
-      "•".repeat(key.length - 8) +
+      '•'.repeat(key.length - 8) +
       key.substring(key.length - 4)
     );
   };
 
   if (loading) {
     return (
-      <main className="api-key-settings" aria-live="polite">
+      <main className='api-key-settings' aria-live='polite'>
         <div
-          className="loading-container"
-          role="status"
-          aria-label="Loading API key settings"
+          className='loading-container'
+          role='status'
+          aria-label='Loading API key settings'
         >
-          <div className="spinner" aria-hidden="true"></div>
-          <span className="sr-only">Loading API key settings...</span>
+          <div className='spinner' aria-hidden='true'></div>
+          <span className='sr-only'>Loading API key settings...</span>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="api-key-settings">
-      <div className="container">
-        <header className="settings-header">
+    <main className='api-key-settings'>
+      <div className='container'>
+        <header className='settings-header'>
           <h1>API Key Settings</h1>
-          <p className="subtitle">
+          <p className='subtitle'>
             Manage your cryptocurrency exchange API keys
           </p>
         </header>
 
         {error && (
-          <div className="alert alert--error" role="alert">
+          <div className='alert alert--error' role='alert'>
             <strong>Error:</strong> {error}
             <button
-              className="btn btn--secondary"
+              className='btn btn--secondary'
               onClick={() => setError(null)}
-              aria-label="Dismiss error message"
-              type="button"
+              aria-label='Dismiss error message'
+              type='button'
             >
               ×
             </button>
@@ -244,97 +242,97 @@ const APIKeySettings: React.FC = () => {
         )}
 
         {success && (
-          <div className="alert alert--success" role="alert">
+          <div className='alert alert--success' role='alert'>
             <strong>Success:</strong> {success}
             <button
-              className="btn btn--secondary"
+              className='btn btn--secondary'
               onClick={() => setSuccess(null)}
-              aria-label="Dismiss success message"
-              type="button"
+              aria-label='Dismiss success message'
+              type='button'
             >
               ×
             </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* API Keys List */}
           <section
-            className="lg:col-span-2 card"
-            aria-labelledby="api-keys-heading"
+            className='lg:col-span-2 card'
+            aria-labelledby='api-keys-heading'
           >
-            <header className="card-header">
-              <h2 id="api-keys-heading">Your API Keys</h2>
-              <p className="text-muted">
+            <header className='card-header'>
+              <h2 id='api-keys-heading'>Your API Keys</h2>
+              <p className='text-muted'>
                 Manage connections to cryptocurrency exchanges
               </p>
               <button
-                className="btn btn--primary"
+                className='btn btn--primary'
                 onClick={() => setShowForm(true)}
-                type="button"
+                type='button'
               >
                 Add New API Key
               </button>
             </header>
 
             {apiKeys.length === 0 ? (
-              <div className="empty-state">
+              <div className='empty-state'>
                 <h3>No API Keys Found</h3>
-                <p className="text-muted">
+                <p className='text-muted'>
                   Add your first API key to start trading
                 </p>
                 <button
-                  className="btn btn--primary"
+                  className='btn btn--primary'
                   onClick={() => setShowForm(true)}
-                  type="button"
+                  type='button'
                 >
                   Add API Key
                 </button>
               </div>
             ) : (
-              <div className="table-container">
-                <table role="table" aria-label="API keys list">
+              <div className='table-container'>
+                <table role='table' aria-label='API keys list'>
                   <thead>
                     <tr>
-                      <th scope="col">Name</th>
-                      <th scope="col">Exchange</th>
-                      <th scope="col">API Key</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Created</th>
-                      <th scope="col">Actions</th>
+                      <th scope='col'>Name</th>
+                      <th scope='col'>Exchange</th>
+                      <th scope='col'>API Key</th>
+                      <th scope='col'>Status</th>
+                      <th scope='col'>Created</th>
+                      <th scope='col'>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {apiKeys.map((apiKey) => (
+                    {apiKeys.map(apiKey => (
                       <tr key={apiKey.id}>
                         <td>
                           <strong>{apiKey.name}</strong>
                         </td>
                         <td>
-                          <span className="exchange-badge">
+                          <span className='exchange-badge'>
                             {apiKey.exchange.charAt(0).toUpperCase() +
                               apiKey.exchange.slice(1)}
                           </span>
                         </td>
                         <td>
-                          <code className="api-key-display">
+                          <code className='api-key-display'>
                             {maskApiKey(apiKey.apiKey)}
                           </code>
                         </td>
                         <td>
                           <button
                             className={`status status--${
-                              apiKey.isActive ? "active" : "inactive"
+                              apiKey.isActive ? 'active' : 'inactive'
                             }`}
                             onClick={() =>
                               toggleStatus(apiKey.id, apiKey.isActive)
                             }
-                            type="button"
+                            type='button'
                             aria-label={`${
-                              apiKey.isActive ? "Deactivate" : "Activate"
+                              apiKey.isActive ? 'Deactivate' : 'Activate'
                             } ${apiKey.name}`}
                           >
-                            {apiKey.isActive ? "Active" : "Inactive"}
+                            {apiKey.isActive ? 'Active' : 'Inactive'}
                           </button>
                         </td>
                         <td>
@@ -343,19 +341,19 @@ const APIKeySettings: React.FC = () => {
                           </time>
                         </td>
                         <td>
-                          <div className="action-buttons">
+                          <div className='action-buttons'>
                             <button
-                              className="btn btn--secondary btn--sm"
+                              className='btn btn--secondary btn--sm'
                               onClick={() => handleEdit(apiKey)}
-                              type="button"
+                              type='button'
                               aria-label={`Edit ${apiKey.name}`}
                             >
                               Edit
                             </button>
                             <button
-                              className="btn btn--error btn--sm"
+                              className='btn btn--error btn--sm'
                               onClick={() => handleDelete(apiKey.id)}
-                              type="button"
+                              type='button'
                               aria-label={`Delete ${apiKey.name}`}
                             >
                               Delete
@@ -371,144 +369,144 @@ const APIKeySettings: React.FC = () => {
           </section>
 
           {/* Add/Edit Form */}
-          <section className="card" aria-labelledby="form-heading">
-            <header className="card-header">
-              <h2 id="form-heading">
-                {editingKey ? "Edit API Key" : "Add New API Key"}
+          <section className='card' aria-labelledby='form-heading'>
+            <header className='card-header'>
+              <h2 id='form-heading'>
+                {editingKey ? 'Edit API Key' : 'Add New API Key'}
               </h2>
-              <p className="text-muted">
+              <p className='text-muted'>
                 {editingKey
-                  ? "Update your API key settings"
-                  : "Connect to a cryptocurrency exchange"}
+                  ? 'Update your API key settings'
+                  : 'Connect to a cryptocurrency exchange'}
               </p>
             </header>
 
             {showForm ? (
               <form onSubmit={handleSubmit} noValidate>
-                <div className="form-group">
-                  <label htmlFor="name" className="form-label">
+                <div className='form-group'>
+                  <label htmlFor='name' className='form-label'>
                     Display Name
                   </label>
                   <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    className="form-input"
+                    type='text'
+                    id='name'
+                    name='name'
+                    className='form-input'
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="e.g., Main Trading Account"
+                    placeholder='e.g., Main Trading Account'
                     required
-                    aria-describedby="name-help"
+                    aria-describedby='name-help'
                   />
-                  <div id="name-help" className="form-help text-muted">
+                  <div id='name-help' className='form-help text-muted'>
                     A friendly name to identify this API key
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="exchange" className="form-label">
+                <div className='form-group'>
+                  <label htmlFor='exchange' className='form-label'>
                     Exchange
                   </label>
                   <select
-                    id="exchange"
-                    name="exchange"
-                    className="form-select"
+                    id='exchange'
+                    name='exchange'
+                    className='form-select'
                     value={formData.exchange}
                     onChange={handleInputChange}
                     required
-                    aria-describedby="exchange-help"
+                    aria-describedby='exchange-help'
                   >
-                    <option value="bitvavo">Bitvavo</option>
-                    <option value="binance">Binance</option>
-                    <option value="kraken">Kraken</option>
-                    <option value="coinbase">Coinbase Pro</option>
+                    <option value='bitvavo'>Bitvavo</option>
+                    <option value='binance'>Binance</option>
+                    <option value='kraken'>Kraken</option>
+                    <option value='coinbase'>Coinbase Pro</option>
                   </select>
-                  <div id="exchange-help" className="form-help text-muted">
+                  <div id='exchange-help' className='form-help text-muted'>
                     Select the cryptocurrency exchange
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="apiKey" className="form-label">
+                <div className='form-group'>
+                  <label htmlFor='apiKey' className='form-label'>
                     API Key
                   </label>
                   <input
-                    type="text"
-                    id="apiKey"
-                    name="apiKey"
-                    className="form-input"
+                    type='text'
+                    id='apiKey'
+                    name='apiKey'
+                    className='form-input'
                     value={formData.apiKey}
                     onChange={handleInputChange}
-                    placeholder="Enter your API key"
+                    placeholder='Enter your API key'
                     required
-                    aria-describedby="api-key-help"
+                    aria-describedby='api-key-help'
                   />
-                  <div id="api-key-help" className="form-help text-muted">
+                  <div id='api-key-help' className='form-help text-muted'>
                     Your public API key from the exchange
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="apiSecret" className="form-label">
+                <div className='form-group'>
+                  <label htmlFor='apiSecret' className='form-label'>
                     API Secret
                   </label>
                   <input
-                    type="password"
-                    id="apiSecret"
-                    name="apiSecret"
-                    className="form-input"
+                    type='password'
+                    id='apiSecret'
+                    name='apiSecret'
+                    className='form-input'
                     value={formData.apiSecret}
                     onChange={handleInputChange}
                     placeholder={
                       editingKey
-                        ? "Enter new secret to update"
-                        : "Enter your API secret"
+                        ? 'Enter new secret to update'
+                        : 'Enter your API secret'
                     }
                     required={!editingKey}
-                    aria-describedby="api-secret-help"
+                    aria-describedby='api-secret-help'
                   />
-                  <div id="api-secret-help" className="form-help text-muted">
+                  <div id='api-secret-help' className='form-help text-muted'>
                     {editingKey
-                      ? "Leave empty to keep current secret, or enter new secret to update"
-                      : "Your private API secret from the exchange (encrypted when stored)"}
+                      ? 'Leave empty to keep current secret, or enter new secret to update'
+                      : 'Your private API secret from the exchange (encrypted when stored)'}
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="checkbox-label">
+                <div className='form-group'>
+                  <label className='checkbox-label'>
                     <input
-                      type="checkbox"
-                      name="isActive"
+                      type='checkbox'
+                      name='isActive'
                       checked={formData.isActive}
                       onChange={handleInputChange}
                     />
-                    <span className="checkbox-text">Active</span>
+                    <span className='checkbox-text'>Active</span>
                   </label>
-                  <div className="form-help text-muted">
+                  <div className='form-help text-muted'>
                     Only active API keys will be used for trading
                   </div>
                 </div>
 
-                <div className="form-actions">
+                <div className='form-actions'>
                   <button
-                    type="submit"
-                    className="btn btn--primary"
+                    type='submit'
+                    className='btn btn--primary'
                     disabled={loading}
                   >
                     {loading ? (
                       <>
-                        <span className="spinner" aria-hidden="true"></span>
-                        <span>{editingKey ? "Updating..." : "Adding..."}</span>
+                        <span className='spinner' aria-hidden='true'></span>
+                        <span>{editingKey ? 'Updating...' : 'Adding...'}</span>
                       </>
                     ) : editingKey ? (
-                      "Update API Key"
+                      'Update API Key'
                     ) : (
-                      "Add API Key"
+                      'Add API Key'
                     )}
                   </button>
                   <button
-                    type="button"
-                    className="btn btn--secondary"
+                    type='button'
+                    className='btn btn--secondary'
                     onClick={resetForm}
                   >
                     Cancel
@@ -516,14 +514,14 @@ const APIKeySettings: React.FC = () => {
                 </div>
               </form>
             ) : (
-              <div className="empty-form-state">
-                <p className="text-muted">
+              <div className='empty-form-state'>
+                <p className='text-muted'>
                   Click "Add New API Key" to get started
                 </p>
                 <button
-                  className="btn btn--primary"
+                  className='btn btn--primary'
                   onClick={() => setShowForm(true)}
-                  type="button"
+                  type='button'
                 >
                   Add API Key
                 </button>
@@ -534,14 +532,14 @@ const APIKeySettings: React.FC = () => {
 
         {/* Security Notice */}
         <section
-          className="security-notice card card--warning"
-          aria-labelledby="security-heading"
+          className='security-notice card card--warning'
+          aria-labelledby='security-heading'
         >
-          <header className="card-header">
-            <h2 id="security-heading">Security Information</h2>
+          <header className='card-header'>
+            <h2 id='security-heading'>Security Information</h2>
           </header>
-          <div className="security-content">
-            <ul className="security-list">
+          <div className='security-content'>
+            <ul className='security-list'>
               <li>
                 <strong>API Permissions:</strong> Only grant read and trade
                 permissions. Never grant withdrawal permissions.

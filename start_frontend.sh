@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Crypto Trading Manager - Frontend Start Script  
+# Crypto Trading Manager - Frontend Start Script
 # Voor iMac Late 2013 + macOS Monterey - Nu met Vite + TypeScript!
 
 echo "🌐 Starting Crypto Trading Manager Frontend with Vite + TypeScript..."

@@ -1,22 +1,45 @@
 # Crypto Trading Manager
 
-Een uitgebreide cryptocurrency trading management applicatie gebouwd met Python (FastAPI) backend en React frontend. De applicatie biedt geautomatiseerde trading mogelijkheden, technische analyse, portfolio management, en integratie met de Bitvavo exchange API.
+[![CI/CD Pipeline](https://github.com/sjefsharp/crypto_trading_manager/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/sjefsharp/crypto_trading_manager/actions)
+[![Security Audit](https://github.com/sjefsharp/crypto_trading_manager/workflows/Security%20Audit/badge.svg)](https://github.com/sjefsharp/crypto_trading_manager/actions)
+[![codecov](https://codecov.io/gh/sjefsharp/crypto_trading_manager/branch/main/graph/badge.svg)](https://codecov.io/gh/sjefsharp/crypto_trading_manager)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Node.js 20+](https://img.shields.io/badge/node.js-20+-green.svg)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Een enterprise-grade cryptocurrency trading management applicatie met geautomatiseerde trading, technische analyse, portfolio management, en integratie met de Bitvavo exchange API.
+
+## 🏗️ Enterprise Architecture
+
+Deze applicatie volgt enterprise-grade ontwikkelingsstandaarden:
+
+- **Backend**: Python 3.11+ met FastAPI, SQLAlchemy ORM, Pydantic validation
+- **Frontend**: React 18 + TypeScript + Vite met Material-UI
+- **Database**: SQLite (development) / PostgreSQL (production)
+- **Testing**: 150+ tests met 90%+ coverage (Pytest + Vitest + Playwright)
+- **CI/CD**: GitHub Actions met automated testing, security scanning, en deployment
+- **Code Quality**: Black, isort, flake8, mypy, ESLint, Prettier
+- **Security**: Bandit, CodeQL, dependency scanning, secrets management
+- **Documentation**: OpenAPI/Swagger, TypeDoc, comprehensive README
 
 ## 🚀 Features
 
-### ✅ Phase 1 - Volledig Geïmplementeerd
+### ✅ Core Trading Features
 
 - **Trading Operations**: Buy, sell, market, limit orders met Bitvavo API
-- **Safety System**: Dry-run, demo, en live trading modes
-- **Real-time Data**: Live marktdata visualisatie
-- **Portfolio Management**: Portfolio tracking en balance weergave
-- **Stop-loss/Take-profit**: Geautomatiseerde order management
-- **Database**: SQLite voor lokale data opslag
-- **Frontend**: React frontend met responsive design
-- **Testing**: 100% test coverage (93+ tests passing)
+- **Safety System**: Dry-run, demo, en live trading modes met veiligheidswaarschuwingen
+- **Real-time Data**: Live marktdata streaming en historische data
+- **Portfolio Management**: Multi-portfolio tracking met performance analytics
+- **Risk Management**: Stop-loss, take-profit, position sizing, risk scoring
+- **Order Management**: Order history, cancellation, modification
+- **Technical Analysis**: Moving averages, RSI, MACD, custom indicators
 
-### 🔒 Veiligheidskenmerken
+### 🔒 Enterprise Security Features
 
+- **Authentication**: JWT tokens, role-based access control
+- **Encryption**: AES-256 voor gevoelige data, API key encryption
+- **API Security**: Rate limiting, CORS, input validation, SQL injection protection
+- **Audit Logging**: Comprehensive audit trail voor alle trading activiteiten
 - **Dry-Run Mode**: Standaard veilige modus zonder echte trades
 - **Demo Mode**: Realistische simulatie voor testing
 - **Live Mode**: Echte trading met credentials validatie

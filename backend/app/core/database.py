@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+
 from app.core.config import settings
 
 # Create SQLAlchemy engine
@@ -13,6 +14,7 @@ Base = declarative_base()
 
 # Metadata for Alembic
 metadata = MetaData()
+
 
 def get_db():
     """Dependency to get database session"""

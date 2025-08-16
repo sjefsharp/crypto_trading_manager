@@ -1,13 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.services.bitvavo_api_secure import BitvavoAPI, calculate_stop_loss, calculate_take_profit
 from app.models.database_models import Trade, User
+from app.services.bitvavo_api_secure import (
+    BitvavoAPI,
+    calculate_stop_loss,
+    calculate_take_profit,
+)
 
 router = APIRouter()
+
 
 # Pydantic models for request/response
 class OrderRequest(BaseModel):
@@ -20,15 +26,18 @@ class OrderRequest(BaseModel):
     stop_loss_price: Optional[float] = None
     take_profit_price: Optional[float] = None
 
+
 class OrderResponse(BaseModel):
     order_id: str
     status: str
     message: str
 
+
 class BalanceResponse(BaseModel):
     symbol: str
     available: float
     in_order: float
+
 
 @router.get("/balance", response_model=List[BalanceResponse])
 async def get_balance(db: Session = Depends(get_db)):
@@ -36,18 +45,21 @@ async def get_balance(db: Session = Depends(get_db)):
     try:
         api = BitvavoAPI()
         balance_data = await api.get_balance()
-            
+
         balances = []
         for item in balance_data:
-            balances.append(BalanceResponse(
-                symbol=item["symbol"],
-                available=float(item["available"]),
-                in_order=float(item["inOrder"])
-            ))
-        
+            balances.append(
+                BalanceResponse(
+                    symbol=item["symbol"],
+                    available=float(item["available"]),
+                    in_order=float(item["inOrder"]),
+                )
+            )
+
         return balances
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.post("/order", response_model=OrderResponse)
 async def place_order(order_request: OrderRequest, db: Session = Depends(get_db)):
@@ -60,13 +72,16 @@ async def place_order(order_request: OrderRequest, db: Session = Depends(get_db)
             side=order_request.side,
             order_type=order_request.order_type,
             amount=order_request.amount,
-            price=order_request.price
+            price=order_request.price,
         )
-        
+
         order_id = order_result["orderId"]
-        
+
         # If this is a buy/sell order with stop loss or take profit, place additional orders
-        if order_request.stop_loss_price and order_request.order_type in ["market", "limit"]:
+        if order_request.stop_loss_price and order_request.order_type in [
+            "market",
+            "limit",
+        ]:
             # Place stop loss order
             stop_loss_side = "sell" if order_request.side == "buy" else "buy"
             await api.place_order(
@@ -74,20 +89,23 @@ async def place_order(order_request: OrderRequest, db: Session = Depends(get_db)
                 side=stop_loss_side,
                 order_type="stopLoss",
                 amount=order_request.amount,
-                triggerPrice=order_request.stop_loss_price
+                triggerPrice=order_request.stop_loss_price,
             )
-        
-        if order_request.take_profit_price and order_request.order_type in ["market", "limit"]:
-            # Place take profit order  
+
+        if order_request.take_profit_price and order_request.order_type in [
+            "market",
+            "limit",
+        ]:
+            # Place take profit order
             take_profit_side = "sell" if order_request.side == "buy" else "buy"
             await api.place_order(
                 market=order_request.market,
                 side=take_profit_side,
                 order_type="limit",
                 amount=order_request.amount,
-                price=order_request.take_profit_price
+                price=order_request.take_profit_price,
             )
-        
+
         # Save trade to database
         # TODO: Add user authentication and get actual user_id
         trade = Trade(
@@ -99,19 +117,18 @@ async def place_order(order_request: OrderRequest, db: Session = Depends(get_db)
             quantity=order_request.amount,
             price=order_request.price,
             exchange_order_id=order_id,
-            status="pending"
+            status="pending",
         )
         db.add(trade)
         db.commit()
-        
+
         return OrderResponse(
-            order_id=order_id,
-            status="success",
-            message="Order placed successfully"
+            order_id=order_id, status="success", message="Order placed successfully"
         )
-            
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.get("/orders")
 async def get_open_orders(market: Optional[str] = None):
@@ -123,6 +140,7 @@ async def get_open_orders(market: Optional[str] = None):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.delete("/order/{order_id}")
 async def cancel_order(order_id: str):
     """Cancel a specific order"""
@@ -133,6 +151,7 @@ async def cancel_order(order_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.get("/order-history")
 async def get_order_history(market: Optional[str] = None, limit: int = 100):
     """Get order history"""
@@ -142,6 +161,7 @@ async def get_order_history(market: Optional[str] = None, limit: int = 100):
         return history
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.get("/trade-history")
 async def get_trade_history(market: Optional[str] = None, limit: int = 100):

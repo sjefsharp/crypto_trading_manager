@@ -42,7 +42,7 @@ else
     echo "⚠️ Backend starting up..."
 fi
 
-# Start frontend in background  
+# Start frontend in background
 echo "🌐 Starting frontend server..."
 bash start_frontend.sh &
 FRONTEND_PID=$!
@@ -55,7 +55,7 @@ echo ""
 echo "🎉 Both servers are ready!"
 echo ""
 echo "🌐 Frontend: http://localhost:3000"
-echo "🔧 Backend:  http://localhost:8000" 
+echo "🔧 Backend:  http://localhost:8000"
 echo "📚 API Docs: http://localhost:8000/docs"
 echo "❤️ Health:   http://localhost:8000/health"
 echo ""

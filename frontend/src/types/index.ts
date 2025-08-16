@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent } from "react";
+import { ChangeEvent, FormEvent } from 'react';
 
 // API Key related types
 export interface APIKeyData {
@@ -120,7 +120,7 @@ export interface Trade {
   id: string;
   orderId: string;
   market: string;
-  side: "buy" | "sell";
+  side: 'buy' | 'sell';
   order_type: string;
   orderType: string;
   quantity: number;
@@ -133,7 +133,7 @@ export interface Trade {
 export interface Transaction {
   id: string;
   market: string;
-  side: "buy" | "sell";
+  side: 'buy' | 'sell';
   amount: string;
   price: string;
   status: string;
@@ -146,14 +146,14 @@ export interface TradingMode {
   name: string;
   description: string;
   is_active: boolean;
-  risk_level: "LOW" | "MEDIUM" | "HIGH";
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH';
   parameters: Record<string, any>;
 }
 
 export interface OrderFormData {
   market: string;
-  side: "buy" | "sell";
-  orderType: "market" | "limit";
+  side: 'buy' | 'sell';
+  orderType: 'market' | 'limit';
   amount: string;
   price: string;
 }
@@ -220,7 +220,7 @@ export type FormSubmitHandler = (e: FormEvent<HTMLFormElement>) => void;
 export interface APIResponse<T> {
   data: T;
   message?: string;
-  status: "success" | "error";
+  status: 'success' | 'error';
 }
 
 export interface PaginatedResponse<T> {
