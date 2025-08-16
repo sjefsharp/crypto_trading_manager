@@ -50,8 +50,8 @@ def calculate_portfolio_performance(portfolio_data: Dict[str, Any]) -> Dict[str,
 
 
 def update_portfolio_positions(
-    existing_positions: List[Dict], new_trade: Dict[str, Any]
-) -> List[Dict]:
+    existing_positions: List[Dict[str, Any]], new_trade: Dict[str, Any]
+) -> List[Dict[str, Any]]:
     """Update portfolio positions based on new trade"""
     symbol = new_trade.get("symbol")
     side = new_trade.get("side")

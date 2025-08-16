@@ -11,7 +11,7 @@ import requests
 BASE_URL = "http://localhost:8000"
 
 
-def test_trading_mode_api():
+def test_trading_mode_api() -> None:
     """Test de trading mode API endpoints"""
     print("=== TRADING MODE API DEMONSTRATIE ===\n")
 
@@ -22,7 +22,7 @@ def test_trading_mode_api():
     test_emergency_dry_run()
 
 
-def test_current_status():
+def test_current_status() -> None:
     """Test 1: Check current trading mode status"""
     print("1. Huidige trading mode status:")
     try:

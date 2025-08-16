@@ -42,7 +42,7 @@ def process_ticker_data(raw_ticker: Dict[str, Any]) -> Dict[str, Any]:
     return processed
 
 
-def process_candle_data(raw_candles: List[List]) -> List[Dict[str, Any]]:
+def process_candle_data(raw_candles: List[List[Any]]) -> List[Dict[str, Any]]:
     """Process raw candlestick data"""
     processed_candles = []
 
@@ -63,7 +63,9 @@ def process_candle_data(raw_candles: List[List]) -> List[Dict[str, Any]]:
             else:
                 timestamp_seconds = processed_candle["timestamp"]
 
-            processed_candle["datetime"] = datetime.fromtimestamp(timestamp_seconds)
+            processed_candle["datetime"] = datetime.fromtimestamp(
+                timestamp_seconds
+            ).isoformat()
             processed_candles.append(processed_candle)
 
     return processed_candles
@@ -135,18 +137,19 @@ def calculate_moving_average(prices: List[float], period: int) -> float:
 def calculate_rsi(prices: List[float], period: int = 14) -> float:
     """Calculate Relative Strength Index"""
     if len(prices) < period + 1:
-        return 50.0  # Neutral RSI
+        return 50.0  # Neutral value
 
-    gains = []
-    losses = []
+    # Calculate price changes
+    gains: List[float] = []
+    losses: List[float] = []
 
     for i in range(1, len(prices)):
         change = prices[i] - prices[i - 1]
         if change > 0:
             gains.append(change)
-            losses.append(0)
+            losses.append(0.0)
         else:
-            gains.append(0)
+            gains.append(0.0)
             losses.append(abs(change))
 
     # Calculate average gains and losses

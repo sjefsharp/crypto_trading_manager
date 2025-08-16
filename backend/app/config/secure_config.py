@@ -13,7 +13,7 @@ from cryptography.fernet import Fernet
 class SecureConfig:
     """Secure configuration manager for API keys and sensitive data"""
 
-    def __init__(self, config_dir: str = None):
+    def __init__(self, config_dir: Optional[str] = None) -> None:
         """Initialize secure configuration manager"""
         if config_dir is None:
             self.config_dir = Path.home() / ".crypto_trading_manager"
@@ -27,7 +27,7 @@ class SecureConfig:
         # Initialize or load encryption key
         self._init_encryption()
 
-    def _init_encryption(self):
+    def _init_encryption(self) -> None:
         """Initialize encryption system"""
         if self.key_file.exists():
             # Load existing key
@@ -43,7 +43,7 @@ class SecureConfig:
 
         self.cipher = Fernet(self.key)
 
-    def set_api_keys(self, bitvavo_key: str, bitvavo_secret: str):
+    def set_api_keys(self, bitvavo_key: str, bitvavo_secret: str) -> None:
         """Securely store API keys"""
         config_data = {
             "bitvavo": {"api_key": bitvavo_key, "api_secret": bitvavo_secret}
@@ -82,7 +82,7 @@ class SecureConfig:
             return bitvavo_config.get("api_key"), bitvavo_config.get("api_secret")
         return None, None
 
-    def delete_config(self):
+    def delete_config(self) -> None:
         """Delete all stored configuration"""
         if self.config_file.exists():
             self.config_file.unlink()
@@ -122,7 +122,7 @@ def get_secure_config() -> SecureConfig:
     return _config
 
 
-def setup_initial_config():
+def setup_initial_config() -> None:
     """Interactive setup for initial configuration"""
     print("🔧 Crypto Trading Manager - Initial Configuration")
     print("=" * 50)

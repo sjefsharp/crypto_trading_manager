@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 class EncryptionService:
     """Service for encrypting/decrypting sensitive data in database"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize encryption service"""
         self.key = self._get_or_create_key()
         self.cipher = Fernet(self.key)

@@ -2,8 +2,8 @@ import os
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import ConfigDict, field_validator
-from pydantic_settings import BaseSettings
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Environment(str, Enum):
@@ -36,7 +36,7 @@ class LogLevel(str, Enum):
 class Settings(BaseSettings):
     """Application settings with enterprise-grade configuration management"""
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,

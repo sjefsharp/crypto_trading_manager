@@ -91,7 +91,7 @@ class TradingModeService:
 
         return simulated_response
 
-    def simulate_balance_response(self) -> list:
+    def simulate_balance_response(self) -> List[Dict[str, str]]:
         """Simuleer account balance voor dry-run/demo mode"""
         simulated_balance = [
             {"symbol": "EUR", "available": "10000.00", "inOrder": "0.00"},

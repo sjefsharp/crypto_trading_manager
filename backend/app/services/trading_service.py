@@ -41,7 +41,7 @@ def calculate_order_fees(order: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def check_sufficient_balance(
-    balance: List[Dict], order: Dict[str, Any]
+    balance: List[Dict[str, Any]], order: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Check if user has sufficient balance for order"""
     market = order.get("market", "")
@@ -91,6 +91,9 @@ def generate_stop_loss_order(
     amount = main_order.get("amount")
     price = main_order.get("price")
 
+    if price is None:
+        raise ValueError("Price is required for stop loss order")
+
     # Calculate stop loss trigger price
     if main_order.get("side") == "buy":
         trigger_price = price * (1 - stop_loss_percentage)
@@ -115,6 +118,9 @@ def generate_take_profit_order(
     side = "sell" if main_order.get("side") == "buy" else "buy"
     amount = main_order.get("amount")
     price = main_order.get("price")
+
+    if price is None:
+        raise ValueError("Price is required for take profit order")
 
     # Calculate take profit price
     if main_order.get("side") == "buy":

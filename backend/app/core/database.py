@@ -1,5 +1,7 @@
+from typing import Generator
+
 from sqlalchemy import MetaData, create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from app.core.config import settings
 
@@ -16,7 +18,7 @@ Base = declarative_base()
 metadata = MetaData()
 
 
-def get_db():
+def get_db() -> Generator[Session, None, None]:
     """Dependency to get database session"""
     db = SessionLocal()
     try:
