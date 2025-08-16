@@ -88,7 +88,7 @@ known_third_party = ["fastapi", "sqlalchemy", "pydantic"]
 
 [tool.flake8]
 max-line-length = 88
-extend-ignore = ["E203", "W503"]
+# NO IGNORES - all code style violations must be fixed
 exclude = [
     ".git",
     "__pycache__",
@@ -100,7 +100,7 @@ exclude = [
 
 [tool.mypy]
 python_version = "3.13"
-# Strict type checking for maximum code quality
+# MAXIMUM STRICT - no compromises, no overrides
 strict = true
 warn_return_any = true
 warn_unused_configs = true
@@ -114,23 +114,10 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
-# Additional strict settings
 disallow_any_generics = true
 disallow_subclassing_any = true
 disallow_untyped_calls = true
-
-[[tool.mypy.overrides]]
-module = [
-    "pandas_ta.*",
-    "ta.*",
-    "uvicorn.*",
-    "alembic.*",
-    "authlib.*",
-    "passlib.*",
-    "factory_boy.*",
-    "pytest_asyncio.*"
-]
-ignore_missing_imports = false
+# NO OVERRIDES - all code must be properly typed
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -158,14 +145,7 @@ omit = [
 precision = 2
 show_missing = true
 skip_covered = false
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]
+# NO COVERAGE EXCLUDES - all code must be tested
 
 [tool.coverage.html]
 directory = "htmlcov"
@@ -183,30 +163,15 @@ assert_used = true
 recursive = true
 
 [tool.pylint.messages_control]
-disable = [
-    "C0114",  # missing-module-docstring (for API modules)
-    "C0116",  # missing-function-docstring (for simple getters/setters)
-    "R0903",  # too-few-public-methods (for data classes)
-]
-# Enable additional security and quality checks
-enable = [
-    "useless-suppression",
-    "deprecated-pragma",
-    "use-symbolic-message-instead"
-]
+# NO DISABLES - all code quality issues must be addressed
+# NO COMPROMISES for enterprise-grade code
 
 [tool.pylint.format]
 max-line-length = 88
 
 [tool.pylint.design]
-# Increase limits for complex financial applications
-max-attributes = 10
-max-arguments = 8
-max-branches = 15
-max-statements = 60
-
-[tool.pylint.similarities]
-# Detect code duplication
-min-similarity-lines = 6
-ignore-comments = true
-ignore-docstrings = true
+# Standard strict limits - no special exceptions
+max-attributes = 7
+max-arguments = 5
+max-branches = 12
+max-statements = 50
