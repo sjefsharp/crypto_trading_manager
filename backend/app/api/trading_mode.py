@@ -3,7 +3,7 @@ Trading Mode API endpoints voor het beheren van dry-run, demo en live modes
 """
 
 import logging
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -32,7 +32,7 @@ class LiveTradingValidationResponse(BaseModel):
     can_trade_live: bool
     requirements: str  # UI-friendly string message
     current_mode: str
-    details: dict  # Detailed breakdown voor debugging
+    details: dict[str, Any]  # Detailed breakdown voor debugging
 
 
 class SetTradingModeRequest(BaseModel):
@@ -43,7 +43,7 @@ class SetTradingModeRequest(BaseModel):
 
 
 @router.get("/status", response_model=TradingModeResponse)
-async def get_trading_mode_status():
+async def get_trading_mode_status() -> TradingModeResponse:
     """Get huidige trading mode status"""
     try:
         can_trade_live, validation_message = (
@@ -65,7 +65,7 @@ async def get_trading_mode_status():
 
 
 @router.post("/set", response_model=TradingModeResponse)
-async def set_trading_mode(request: SetTradingModeRequest):
+async def set_trading_mode(request: SetTradingModeRequest) -> TradingModeResponse:
     """Set trading mode"""
     try:
         # Validate mode
@@ -117,7 +117,7 @@ async def set_trading_mode(request: SetTradingModeRequest):
 
 
 @router.post("/enable-dry-run")
-async def enable_dry_run():
+async def enable_dry_run() -> dict[str, Any]:
     """Schakel dry-run mode in (veiligheidsknop)"""
     try:
         current_mode = trading_mode_service.get_current_mode()
@@ -125,18 +125,19 @@ async def enable_dry_run():
 
         logger.info("🔒 Dry-run mode force enabled for safety")
 
-        return {
+        response_data: dict[str, Any] = {
             "dry_run_enabled": True,
             "message": "Emergency dry-run mode enabled for safety",
             "current_mode": current_mode.value,
         }
+        return response_data
     except Exception as e:
         logger.error(f"Error enabling dry-run: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/validate-live")
-async def validate_live_trading():
+async def validate_live_trading() -> dict[str, Any]:
     """Valideer of live trading mogelijk is"""
     try:
         can_trade_live, message = (
@@ -157,7 +158,7 @@ async def validate_live_trading():
             requirements=message,  # UI-friendly string
             current_mode=trading_mode_service.get_current_mode().value,
             details=details,
-        )
+        ).model_dump()
     except Exception as e:
         logger.error(f"Error validating live trading: {e}")
         raise HTTPException(status_code=500, detail=str(e))

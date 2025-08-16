@@ -3,7 +3,7 @@ Market data service module for processing and analyzing market data
 """
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
 
 def process_ticker_data(raw_ticker: Dict[str, Any]) -> Dict[str, Any]:
@@ -42,19 +42,20 @@ def process_ticker_data(raw_ticker: Dict[str, Any]) -> Dict[str, Any]:
     return processed
 
 
-def process_candle_data(raw_candles: List[List[Any]]) -> List[Dict[str, Any]]:
-    """Process raw candlestick data"""
-    processed_candles = []
+def process_candle_data(raw_candles: List[Any]) -> List[Dict[str, Any]]:
+    """Process raw candle data into standardized format"""
+    processed_candles: List[Dict[str, Any]] = []
 
     for candle in raw_candles:
-        if len(candle) >= 6:
-            processed_candle = {
-                "timestamp": int(candle[0]),
-                "open": float(candle[1]),
-                "high": float(candle[2]),
-                "low": float(candle[3]),
-                "close": float(candle[4]),
-                "volume": float(candle[5]),
+        if isinstance(candle, (list, tuple)) and len(candle) >= 6:
+            candle_list = cast(List[Any], candle)
+            processed_candle: Dict[str, Any] = {
+                "timestamp": float(candle_list[0]),
+                "open": float(candle_list[1]),
+                "high": float(candle_list[2]),
+                "low": float(candle_list[3]),
+                "close": float(candle_list[4]),
+                "volume": float(candle_list[5]),
             }
 
             # Convert timestamp to datetime if needed
@@ -62,14 +63,11 @@ def process_candle_data(raw_candles: List[List[Any]]) -> List[Dict[str, Any]]:
             if isinstance(timestamp_value, str):
                 timestamp_value = float(timestamp_value)
 
-            if timestamp_value > 1000000000000:  # Milliseconds
-                timestamp_seconds = timestamp_value / 1000
-            else:
-                timestamp_seconds = timestamp_value
+            timestamp_seconds = float(timestamp_value)
+            if timestamp_seconds > 1000000000000:  # Milliseconds
+                timestamp_seconds = timestamp_seconds / 1000
 
-            processed_candle["datetime"] = datetime.fromtimestamp(  # type: ignore
-                float(timestamp_seconds)
-            ).isoformat()
+            processed_candle["datetime"] = datetime.fromtimestamp(timestamp_seconds)
             processed_candles.append(processed_candle)
 
     return processed_candles
@@ -97,7 +95,7 @@ def calculate_price_change(
 
 
 def check_price_alerts(
-    alerts: List[Dict], market: str, current_price: float
+    alerts: List[Dict[str, Any]], market: str, current_price: float
 ) -> List[Dict[str, Any]]:
     """Check if any price alerts should be triggered"""
     triggered_alerts = []

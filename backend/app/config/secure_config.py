@@ -69,7 +69,8 @@ class SecureConfig:
                 encrypted_data = f.read()
 
             decrypted_data = self.cipher.decrypt(encrypted_data)
-            return json.loads(decrypted_data.decode())
+            config_data: dict[str, Any] = json.loads(decrypted_data.decode())
+            return config_data
         except Exception as e:
             print(f"❌ Error reading API keys: {e}")
             return None

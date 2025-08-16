@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List, cast
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -42,24 +42,31 @@ class CandleData(BaseModel):
 
 
 @router.get("/markets", response_model=List[MarketInfo])
-async def get_markets():
+async def get_markets() -> List[MarketInfo]:
     """Get all available trading markets"""
     try:
         api = BitvavoAPI()
         markets_data = await api.get_markets()
 
-        markets = []
-        for market in markets_data:
+        markets: List[MarketInfo] = []
+        for market_data in markets_data:
+            market_dict = cast(Dict[str, Any], market_data)
             markets.append(
                 MarketInfo(
-                    market=market["market"],
-                    status=market["status"],
-                    base=market["base"],
-                    quote=market["quote"],
-                    pricePrecision=market["pricePrecision"],
-                    minOrderInQuoteAsset=market["minOrderInQuoteAsset"],
-                    minOrderInBaseAsset=market["minOrderInBaseAsset"],
-                    orderTypes=market["orderTypes"],
+                    market=str(market_dict.get("market", "")),
+                    status=str(market_dict.get("status", "")),
+                    base=str(market_dict.get("base", "")),
+                    quote=str(market_dict.get("quote", "")),
+                    pricePrecision=int(market_dict.get("pricePrecision", 0)),
+                    minOrderInQuoteAsset=str(
+                        market_dict.get("minOrderInQuoteAsset", "")
+                    ),
+                    minOrderInBaseAsset=str(market_dict.get("minOrderInBaseAsset", "")),
+                    orderTypes=(
+                        cast(List[str], market_dict.get("orderTypes", []))
+                        if isinstance(market_dict.get("orderTypes"), list)
+                        else []
+                    ),
                 )
             )
 
@@ -69,25 +76,26 @@ async def get_markets():
 
 
 @router.get("/ticker", response_model=List[TickerInfo])
-async def get_all_tickers():
+async def get_all_tickers() -> List[TickerInfo]:
     """Get ticker information for all markets"""
     try:
         api = BitvavoAPI()
         ticker_data = await api.get_ticker()
 
-        tickers = []
+        tickers: List[TickerInfo] = []
         for ticker in ticker_data:
+            ticker_dict = cast(Dict[str, Any], ticker)
             tickers.append(
                 TickerInfo(
-                    market=ticker["market"],
-                    last=float(ticker["last"]),
-                    high=float(ticker["high"]),
-                    low=float(ticker["low"]),
-                    volume=float(ticker["volume"]),
-                    volumeQuote=float(ticker["volumeQuote"]),
-                    bid=float(ticker["bid"]),
-                    ask=float(ticker["ask"]),
-                    timestamp=int(ticker["timestamp"]),
+                    market=str(ticker_dict["market"]),
+                    last=float(ticker_dict["last"]),
+                    high=float(ticker_dict["high"]),
+                    low=float(ticker_dict["low"]),
+                    volume=float(ticker_dict["volume"]),
+                    volumeQuote=float(ticker_dict["volumeQuote"]),
+                    bid=float(ticker_dict["bid"]),
+                    ask=float(ticker_dict["ask"]),
+                    timestamp=int(ticker_dict["timestamp"]),
                 )
             )
 
@@ -97,14 +105,14 @@ async def get_all_tickers():
 
 
 @router.get("/ticker/{market}", response_model=TickerInfo)
-async def get_ticker(market: str):
+async def get_ticker(market: str) -> TickerInfo:
     """Get ticker information for a specific market"""
     try:
         api = BitvavoAPI()
         ticker_data = await api.get_ticker(market)
 
         return TickerInfo(
-            market=ticker_data["market"],
+            market=str(ticker_data["market"]),
             last=float(ticker_data["last"]),
             high=float(ticker_data["high"]),
             low=float(ticker_data["low"]),
@@ -119,7 +127,7 @@ async def get_ticker(market: str):
 
 
 @router.get("/orderbook/{market}")
-async def get_orderbook(market: str, depth: int = 50):
+async def get_orderbook(market: str, depth: int = 50) -> Dict[str, Any]:
     """Get orderbook for a specific market"""
     try:
         async with BitvavoAPI() as api:
@@ -131,18 +139,20 @@ async def get_orderbook(market: str, depth: int = 50):
 
 
 @router.get("/trades/{market}")
-async def get_recent_trades(market: str, limit: int = 100):
+async def get_recent_trades(market: str, limit: int = 100) -> List[Dict[str, Any]]:
     """Get recent trades for a market"""
     try:
         api = BitvavoAPI()
         trades = await api.get_trades(market, limit)
-        return trades
+        return cast(List[Dict[str, Any]], trades)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/candles/{market}", response_model=List[CandleData])
-async def get_candles(market: str, interval: str = "1h", limit: int = 100):
+async def get_candles(
+    market: str, interval: str = "1h", limit: int = 100
+) -> List[CandleData]:
     """Get candlestick data for a market
 
     Available intervals: 1m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w
@@ -151,16 +161,17 @@ async def get_candles(market: str, interval: str = "1h", limit: int = 100):
         api = BitvavoAPI()
         candles_data = await api.get_candles(market, interval, limit)
 
-        candles = []
+        candles: List[CandleData] = []
         for candle in candles_data:
+            candle_list = cast(List[Any], candle)
             candles.append(
                 CandleData(
-                    timestamp=int(candle[0]),
-                    open=float(candle[1]),
-                    high=float(candle[2]),
-                    low=float(candle[3]),
-                    close=float(candle[4]),
-                    volume=float(candle[5]),
+                    timestamp=int(candle_list[0]),
+                    open=float(candle_list[1]),
+                    high=float(candle_list[2]),
+                    low=float(candle_list[3]),
+                    close=float(candle_list[4]),
+                    volume=float(candle_list[5]),
                 )
             )
 
@@ -170,7 +181,7 @@ async def get_candles(market: str, interval: str = "1h", limit: int = 100):
 
 
 @router.get("/price/{market}")
-async def get_current_price(market: str):
+async def get_current_price(market: str) -> Dict[str, Any]:
     """Get current price for a market"""
     try:
         api = BitvavoAPI()

@@ -69,7 +69,7 @@ class BitvavoAPI:
                 )
                 print("Configure API keys via the frontend settings.")
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "BitvavoAPI":
         """Async context manager entry"""
         self.session = httpx.AsyncClient(timeout=30.0)
         return self
@@ -160,7 +160,7 @@ class BitvavoAPI:
         headers: Dict[str, str],
         params: Optional[Dict[str, Any]] = None,
         body: Optional[Dict[str, Any]] = None,
-    ):
+    ) -> httpx.Response:
         """Execute HTTP request based on method"""
         if not self.session:
             raise RuntimeError("API session not initialized")
@@ -175,7 +175,7 @@ class BitvavoAPI:
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
-    async def _handle_response(self, response):
+    async def _handle_response(self, response: httpx.Response) -> Dict[str, Any]:
         """Handle API response and extract data or errors"""
         if response.status_code == 200:
             return await response.json()
@@ -191,7 +191,7 @@ class BitvavoAPI:
         except Exception:
             return {"error": error_data, "status_code": response.status_code}
 
-    def _handle_request_exception(self, exception) -> Dict[str, Any]:
+    def _handle_request_exception(self, exception: Exception) -> Dict[str, Any]:
         """Handle request exceptions and return standardized error format"""
         if isinstance(exception, httpx.TimeoutException):
             return {"error": "Request timeout", "status_code": 408}
@@ -585,13 +585,14 @@ def calculate_percentage_change(old_value: float, new_value: float) -> float:
     return ((new_value - old_value) / old_value) * 100
 
 
-def parse_bitvavo_timestamp(timestamp) -> Optional[Any]:
+def parse_bitvavo_timestamp(timestamp: Any) -> Optional[Any]:
     """Parse Bitvavo timestamp to datetime"""
     try:
         from datetime import datetime
 
         if isinstance(timestamp, (int, float)):
             return datetime.fromtimestamp(timestamp / 1000)
+        return None
         return None
     except Exception:
         return None

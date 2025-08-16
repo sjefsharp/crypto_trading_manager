@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -48,7 +48,9 @@ class TradeResponse(BaseModel):
 
 
 @router.post("/", response_model=PortfolioResponse)
-async def create_portfolio(portfolio: PortfolioCreate, db: Session = Depends(get_db)):
+async def create_portfolio(
+    portfolio: PortfolioCreate, db: Session = Depends(get_db)
+) -> PortfolioResponse:
     """Create a new portfolio"""
     try:
         # TODO: Add user authentication and get actual user_id
@@ -73,7 +75,7 @@ async def create_portfolio(portfolio: PortfolioCreate, db: Session = Depends(get
 
 
 @router.get("/", response_model=List[PortfolioResponse])
-async def get_portfolios(db: Session = Depends(get_db)):
+async def get_portfolios(db: Session = Depends(get_db)) -> List[PortfolioResponse]:
     """Get all portfolios for the user"""
     try:
         # TODO: Add user authentication and filter by actual user_id
@@ -97,7 +99,9 @@ async def get_portfolios(db: Session = Depends(get_db)):
 
 
 @router.get("/{portfolio_id}", response_model=PortfolioResponse)
-async def get_portfolio(portfolio_id: int, db: Session = Depends(get_db)):
+async def get_portfolio(
+    portfolio_id: int, db: Session = Depends(get_db)
+) -> PortfolioResponse:
     """Get a specific portfolio"""
     try:
         portfolio = (
@@ -127,7 +131,9 @@ async def get_portfolio(portfolio_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{portfolio_id}/positions", response_model=List[PositionResponse])
-async def get_portfolio_positions(portfolio_id: int, db: Session = Depends(get_db)):
+async def get_portfolio_positions(
+    portfolio_id: int, db: Session = Depends(get_db)
+) -> List[PositionResponse]:
     """Get all positions in a portfolio"""
     try:
         positions = (
@@ -153,7 +159,9 @@ async def get_portfolio_positions(portfolio_id: int, db: Session = Depends(get_d
 
 
 @router.get("/{portfolio_id}/trades", response_model=List[TradeResponse])
-async def get_portfolio_trades(portfolio_id: int, db: Session = Depends(get_db)):
+async def get_portfolio_trades(
+    portfolio_id: int, db: Session = Depends(get_db)
+) -> List[TradeResponse]:
     """Get all trades for a portfolio"""
     try:
         trades = (
@@ -177,8 +185,8 @@ async def get_portfolio_trades(portfolio_id: int, db: Session = Depends(get_db))
                     price=trade.price or 0.0,  # type: ignore
                     filled_quantity=trade.filled_quantity,  # type: ignore
                     filled_price=trade.filled_price or 0.0,  # type: ignore
-                    status=trade.status,  # type: ignore
-                    created_at=trade.created_at.isoformat() if trade.created_at else "",  # type: ignore
+                    status=str(trade.status),
+                    created_at=trade.created_at.isoformat() if trade.created_at else "",
                 )
             )
 
@@ -188,7 +196,9 @@ async def get_portfolio_trades(portfolio_id: int, db: Session = Depends(get_db))
 
 
 @router.put("/{portfolio_id}/update-positions")
-async def update_portfolio_positions(portfolio_id: int, db: Session = Depends(get_db)):
+async def update_portfolio_positions(
+    portfolio_id: int, db: Session = Depends(get_db)
+) -> Dict[str, Any]:
     """Update portfolio positions with current market prices"""
     try:
         positions = (

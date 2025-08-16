@@ -25,7 +25,7 @@ class TradingMode(Enum):
 class TradingModeService:
     """Service voor het beheren van trading modes en simulatie van trades"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.current_mode = TradingMode(settings.TRADING_MODE)
         self.dry_run_enabled = settings.DRY_RUN_ENABLED
 
@@ -130,4 +130,4 @@ class TradingModeService:
 
 
 # Global instance
-trading_mode_service = TradingModeService()
+trading_mode_service: TradingModeService = TradingModeService()

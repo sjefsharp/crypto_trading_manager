@@ -231,3 +231,16 @@ class TechnicalIndicator(Base):
     value = Column(Float, nullable=False)
     parameters = Column(Text)  # JSON with indicator parameters
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+__all__ = [
+    "Base",
+    "User",
+    "Portfolio",
+    "APIKey",
+    "Trade",
+    "Position",
+    "Strategy",
+    "MarketData",
+    "TechnicalIndicator",
+]

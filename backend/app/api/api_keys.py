@@ -2,7 +2,7 @@
 API endpoints for managing user API keys
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -51,7 +51,7 @@ async def store_api_key(
     request: APIKeyRequest,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> Dict[str, Any]:
     """Store encrypted API key for a specific exchange"""
     try:
         # Validate exchange
@@ -130,10 +130,10 @@ async def store_api_key(
         raise HTTPException(status_code=500, detail=f"Error storing API key: {str(e)}")
 
 
-@router.get("/api-keys/status", response_model=APIKeyStatus)
+@router.get("/api-keys/status", response_model=Dict[str, Any])
 async def get_api_keys_status(
     db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)
-):
+) -> Dict[str, Any]:
     """Get status of configured API keys for current user"""
     try:
         api_keys = (
@@ -151,7 +151,7 @@ async def get_api_keys_status(
             elif key.exchange == "coinbase":
                 status.coinbase = True
 
-        return status
+        return status.model_dump()
 
     except Exception as e:
         raise HTTPException(
@@ -164,7 +164,7 @@ async def delete_api_key(
     exchange: str,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> Dict[str, str]:
     """Delete API key for a specific exchange"""
     try:
         api_key = (
@@ -199,12 +199,13 @@ async def delete_api_key(
         raise HTTPException(status_code=500, detail=f"Error deleting API key: {str(e)}")
 
 
-@router.get("/api-keys/{exchange}/test")
+@router.post("/api-keys/{exchange}/test")
 async def test_api_key(
     exchange: str,
+    request: APIKeyRequest,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> Dict[str, Any]:
     """Test if stored API key works for a specific exchange"""
     try:
         # Get the API key
