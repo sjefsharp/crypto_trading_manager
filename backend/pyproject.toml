@@ -32,8 +32,8 @@ dependencies = [
     "numpy==1.26.4",
     "pandas-ta==0.3.14b0",
     "python-dotenv==1.0.0",
-    "pydantic==2.5.1",
-    "pydantic-settings==2.1.0",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.10.1",
     "cryptography==45.0.5",
     # Security updates
     "urllib3>=2.5.0",
