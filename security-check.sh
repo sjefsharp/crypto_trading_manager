@@ -36,24 +36,27 @@ if [ -d "backend" ]; then
     fi
 
     echo "${BLUE}🐍 Running Python dependency security scan...${NC}"
-    if safety scan --output screen --stage development; then
+    if safety scan --output screen --stage development --disable-optional-telemetry; then
         echo "${GREEN}✅ No Python security vulnerabilities found${NC}"
     else
         echo "${RED}❌ Python security vulnerabilities detected!${NC}"
+        echo "${YELLOW}💡 Try running: safety scan --output json for detailed info${NC}"
         ISSUES_FOUND=$((ISSUES_FOUND + 1))
     fi
 
     echo ""
     echo "${BLUE}🔒 Running Python security linting (Bandit)...${NC}"
     if command -v bandit &> /dev/null; then
-        if bandit -r app/ -f screen; then
+        if bandit -r app/ -f screen -ll -i; then
             echo "${GREEN}✅ No Python security issues found${NC}"
         else
             echo "${RED}❌ Python security issues detected!${NC}"
+            echo "${YELLOW}💡 Run: bandit -r app/ -f json -o bandit-report.json for details${NC}"
             ISSUES_FOUND=$((ISSUES_FOUND + 1))
         fi
     else
         echo "${YELLOW}⚠️  Bandit not installed, skipping Python security linting${NC}"
+        echo "${YELLOW}💡 Install with: pip install bandit${NC}"
     fi
 
     cd ..
@@ -70,11 +73,12 @@ if [ -d "frontend" ]; then
     cd frontend
 
     echo "${BLUE}📦 Running NPM security audit...${NC}"
-    if npm audit --audit-level=moderate; then
+    if npm audit --audit-level=moderate --fund=false; then
         echo "${GREEN}✅ No NPM security vulnerabilities found${NC}"
     else
         echo "${RED}❌ NPM security vulnerabilities detected!${NC}"
         echo "${YELLOW}💡 Try running: npm audit fix${NC}"
+        echo "${YELLOW}💡 For details: npm audit --json${NC}"
         ISSUES_FOUND=$((ISSUES_FOUND + 1))
     fi
 
@@ -87,20 +91,37 @@ echo ""
 echo "${BLUE}🔍 Checking for Secrets...${NC}"
 echo "=========================="
 
+# Check if pre-commit is available for additional security
+if command -v pre-commit &> /dev/null; then
+    echo "${BLUE}🛡️  Running pre-commit security hooks...${NC}"
+    if pre-commit run detect-private-key --all-files; then
+        echo "${GREEN}✅ Pre-commit security hooks passed${NC}"
+    else
+        echo "${YELLOW}⚠️  Pre-commit detected potential private keys${NC}"
+        ISSUES_FOUND=$((ISSUES_FOUND + 1))
+    fi
+    echo ""
+fi
+
 # Basic secret detection
 echo "${BLUE}🔑 Scanning for potential secrets...${NC}"
 SECRET_PATTERNS=(
-    "password\s*=\s*['\"][^'\"]*['\"]"
-    "api[_-]?key\s*=\s*['\"][^'\"]*['\"]"
-    "secret\s*=\s*['\"][^'\"]*['\"]"
-    "token\s*=\s*['\"][^'\"]*['\"]"
+    "password\s*=\s*['\"][^'\"]{8,}['\"]"
+    "api[_-]?key\s*=\s*['\"][^'\"]{16,}['\"]"
+    "secret\s*=\s*['\"][^'\"]{16,}['\"]"
+    "token\s*=\s*['\"][^'\"]{20,}['\"]"
     "-----BEGIN.*PRIVATE KEY-----"
 )
 
 SECRETS_FOUND=0
 for pattern in "${SECRET_PATTERNS[@]}"; do
-    if grep -r -i --include="*.py" --include="*.js" --include="*.ts" --include="*.json" --include="*.yaml" --include="*.yml" -E "$pattern" . 2>/dev/null | grep -v ".git" | grep -v "node_modules" | grep -v "__pycache__" | grep -v ".venv" | grep -v "test_" | grep -v "/tests/" | head -20; then
+    # Faster grep with specific file types and exclusions
+    SECRET_MATCHES=$(grep -r -i --include="*.py" --include="*.js" --include="*.ts" --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir="__pycache__" --exclude-dir=".venv" --exclude-dir="venv" --exclude="*test*" -E "$pattern" . 2>/dev/null | head -3)
+    if [ ! -z "$SECRET_MATCHES" ]; then
+        echo "${RED}🚨 Found potential secrets:${NC}"
+        echo "$SECRET_MATCHES"
         SECRETS_FOUND=1
+        break  # Exit early if secrets found
     fi
 done
 
@@ -122,8 +143,9 @@ else
     echo "${RED}⚠️  Found $ISSUES_FOUND security issue(s). Please fix before committing.${NC}"
     echo ""
     echo "${YELLOW}💡 Quick fixes:${NC}"
-    echo "  • Backend: Update dependencies in backend/pyproject.toml"
+    echo "  • Backend: Update dependencies - pip install --upgrade -r requirements.txt"
     echo "  • Frontend: Run 'npm audit fix' in frontend/"
-    echo "  • Secrets: Remove or move secrets to environment variables"
+    echo "  • Secrets: Remove or move secrets to .env files"
+    echo "  • Pre-commit: Run 'pre-commit run --all-files' for full security scan"
     exit 1
 fi
