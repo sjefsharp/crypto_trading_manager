@@ -31,7 +31,7 @@ fi
 # Initialize database if needed
 if [ ! -f "crypto_trading.db" ]; then
     echo "🗄️ Initializing database..."
-    python init_db.py
+    python -c "from app.database import init_db; init_db()"
 fi
 
 # Check if port 8000 is available
