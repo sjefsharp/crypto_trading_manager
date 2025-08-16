@@ -9,12 +9,11 @@ Enterprise-grade Bitvavo API service using the official Python wrapper with comp
 - Trading safety features
 """
 
-import asyncio
 import logging
 import os
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 
 from python_bitvavo_api.bitvavo import Bitvavo

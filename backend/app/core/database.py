@@ -1,7 +1,7 @@
 from typing import Generator
 
 from sqlalchemy import MetaData, create_engine
-from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, declarative_base, sessionmaker
 
 from app.core.config import settings
 
@@ -11,8 +11,11 @@ engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread":
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create Base class for models
-Base = declarative_base()
+
+# Create Base class for models with proper typing
+class Base(DeclarativeBase):
+    pass
+
 
 # Metadata for Alembic
 metadata = MetaData()

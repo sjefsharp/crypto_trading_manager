@@ -1,11 +1,10 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.database_models import Trade
 from app.services.bitvavo_api_secure import BitvavoAPI
 
 router = APIRouter()
@@ -36,7 +35,7 @@ class BalanceResponse(BaseModel):
 
 
 @router.get("/balance", response_model=List[BalanceResponse])
-async def get_balance(db: Session = Depends(get_db)):
+async def get_balance(db: Session = Depends(get_db)) -> List[BalanceResponse]:
     """Get account balance for all currencies"""
     try:
         async with BitvavoAPI() as api:
@@ -51,9 +50,9 @@ async def get_balance(db: Session = Depends(get_db)):
         for item in balance_data:
             balances.append(
                 BalanceResponse(
-                    symbol=item["symbol"],  # type: ignore
-                    available=float(item["available"]),  # type: ignore
-                    in_order=float(item["inOrder"]),  # type: ignore
+                    symbol=str(item["symbol"]),
+                    available=float(item["available"]),
+                    in_order=float(item["inOrder"]),
                 )
             )
 
@@ -63,7 +62,9 @@ async def get_balance(db: Session = Depends(get_db)):
 
 
 @router.post("/order", response_model=OrderResponse)
-async def place_order(order: OrderRequest, db: Session = Depends(get_db)):
+async def place_order(
+    order: OrderRequest, db: Session = Depends(get_db)
+) -> OrderResponse:
     """Place a new order"""
     try:
         async with BitvavoAPI() as api:
@@ -85,7 +86,9 @@ async def place_order(order: OrderRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/buy")
-async def buy_order(order: OrderRequest, db: Session = Depends(get_db)):
+async def buy_order(
+    order: OrderRequest, db: Session = Depends(get_db)
+) -> Dict[str, Any]:
     """Place a buy order"""
     try:
         async with BitvavoAPI() as api:
@@ -103,7 +106,9 @@ async def buy_order(order: OrderRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/sell")
-async def sell_order(order: OrderRequest, db: Session = Depends(get_db)):
+async def sell_order(
+    order: OrderRequest, db: Session = Depends(get_db)
+) -> Dict[str, Any]:
     """Place a sell order"""
     try:
         async with BitvavoAPI() as api:
@@ -121,7 +126,7 @@ async def sell_order(order: OrderRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/orders")
-async def get_open_orders(market: Optional[str] = None):
+async def get_open_orders(market: Optional[str] = None) -> Dict[str, Any]:
     """Get open orders"""
     try:
         async with BitvavoAPI() as api:
@@ -132,7 +137,7 @@ async def get_open_orders(market: Optional[str] = None):
 
 
 @router.delete("/order/{order_id}")
-async def cancel_order(order_id: str):
+async def cancel_order(order_id: str) -> Dict[str, Any]:
     """Cancel an order"""
     try:
         async with BitvavoAPI() as api:
@@ -143,7 +148,9 @@ async def cancel_order(order_id: str):
 
 
 @router.get("/order-history")
-async def get_order_history(market: Optional[str] = None, limit: int = 100):
+async def get_order_history(
+    market: Optional[str] = None, limit: int = 100
+) -> Dict[str, Any]:
     """Get order history"""
     try:
         async with BitvavoAPI() as api:
@@ -154,7 +161,9 @@ async def get_order_history(market: Optional[str] = None, limit: int = 100):
 
 
 @router.get("/trade-history")
-async def get_trade_history(market: Optional[str] = None, limit: int = 100):
+async def get_trade_history(
+    market: Optional[str] = None, limit: int = 100
+) -> Dict[str, Any]:
     """Get trade history"""
     try:
         async with BitvavoAPI() as api:

@@ -41,7 +41,7 @@ class TradingModeService:
         """Check of live trading actief is"""
         return self.current_mode == TradingMode.LIVE and not self.dry_run_enabled
 
-    def set_mode(self, mode: TradingMode, force_dry_run: bool = False):
+    def set_mode(self, mode: TradingMode, force_dry_run: bool = False) -> None:
         """Set trading mode"""
         self.current_mode = mode
         if force_dry_run:

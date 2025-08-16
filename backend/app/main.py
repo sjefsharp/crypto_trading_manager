@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,12 +64,12 @@ app.add_middleware(
 
 # Health check endpoint
 @app.get("/")
-async def root():
+async def root() -> Dict[str, str]:
     return {"message": "Crypto Trading Manager API", "version": "1.0.0"}
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> Dict[str, Any]:
     """Health check with trading mode status"""
     mode_warning = trading_mode_service.get_mode_warning()
     return {

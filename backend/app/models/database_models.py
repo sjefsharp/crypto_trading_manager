@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, Any
+
 from sqlalchemy import (
     Boolean,
     Column,
@@ -12,6 +14,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 
 class User(Base):
@@ -36,7 +41,7 @@ class User(Base):
     )
     trades = relationship("Trade", back_populates="user", cascade="all, delete-orphan")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"User(username={self.username})"
 
 
@@ -79,7 +84,7 @@ class Portfolio(Base):
     positions = relationship("Position", back_populates="portfolio")
     trades = relationship("Trade", back_populates="portfolio")
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         # Handle balance aliasing
         if "initial_balance" in kwargs and "current_balance" not in kwargs:
             kwargs["current_balance"] = kwargs["initial_balance"]
@@ -87,7 +92,7 @@ class Portfolio(Base):
             kwargs["initial_balance"] = kwargs["current_balance"]
         super().__init__(**kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Portfolio(name={self.name})"
 
 
@@ -110,7 +115,7 @@ class Position(Base):
     # Relationships
     portfolio = relationship("Portfolio", back_populates="positions")
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         # Handle amount/quantity aliasing
         if "amount" in kwargs and "quantity" not in kwargs:
             kwargs["quantity"] = kwargs["amount"]
@@ -151,7 +156,7 @@ class Trade(Base):
     user = relationship("User", back_populates="trades")
     portfolio = relationship("Portfolio", back_populates="trades")
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         # Handle field aliasing for test compatibility
         if "amount" in kwargs and "quantity" not in kwargs:
             kwargs["quantity"] = kwargs["amount"]
@@ -176,7 +181,7 @@ class Trade(Base):
 
         super().__init__(**kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Trade(market={self.market}, side={self.side}, amount={self.amount})"
 
 
