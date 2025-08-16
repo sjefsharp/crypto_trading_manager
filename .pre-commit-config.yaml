@@ -1,22 +1,70 @@
 repos:
+  # General Git Hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
       - id: end-of-file-fixer
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
       - id: check-yaml
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
       - id: check-added-large-files
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
       - id: check-json
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
+      - id: check-merge-conflict
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
+      - id: detect-private-key
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv)/
 
+  # Python Code Quality
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 25.1.0
     hooks:
       - id: black
         files: ^backend/.*\.py$
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 6.0.1
     hooks:
       - id: isort
         files: ^backend/.*\.py$
         args: ["--profile", "black"]
+
+  # Python Security Scanning - Maximum security, no skips
+  - repo: https://github.com/PyCQA/bandit
+    rev: "1.8.6"
+    hooks:
+      - id: bandit
+        files: ^backend/.*\.py$
+        args:
+          [
+            "--exclude",
+            "backend/tests",
+            "--severity-level",
+            "low",
+            "--confidence-level",
+            "low",
+          ]
+
+  # Python Dependency Security - Local safety scan
+  - repo: local
+    hooks:
+      - id: safety-scan
+        name: Safety dependency scan
+        entry: bash -c 'cd backend && safety scan --output screen --stage development'
+        language: system
+        files: ^backend/(requirements\.txt|pyproject\.toml)$
+        pass_filenames: false
+
+  # Secrets Detection - Simple grep-based approach
+  - repo: local
+    hooks:
+      - id: secret-scan
+        name: Check for secrets
+        entry: bash -c 'grep -r -i -E "(password|api[_-]?key|secret|token)\\s*=\\s*['\''\""][^'\''\""]*['\''\""]" --include="*.py" --include="*.js" --include="*.ts" --exclude-dir="node_modules" --exclude-dir=".git" --exclude-dir="__pycache__" --exclude-dir=".pytest_cache" --exclude-dir="venv" --exclude-dir=".venv" --exclude-dir="tests" backend/ frontend/ 2>/dev/null && echo "❌ Potential secrets found!" && exit 1 || echo "✅ No secrets detected"'
+        language: system
+        files: ^(backend|frontend)/.*\.(py|js|ts|json|yaml|yml)$
+        exclude: (node_modules|\.git|__pycache__|\.pytest_cache|venv|\.venv|tests)/
+        pass_filenames: false

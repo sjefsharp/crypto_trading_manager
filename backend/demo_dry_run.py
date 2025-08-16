@@ -18,7 +18,7 @@ def test_trading_mode_api():
     # 1. Check huidige status
     print("1. Huidige trading mode status:")
     try:
-        response = requests.get(f"{BASE_URL}/api/v1/trading-mode/status")
+        response = requests.get(f"{BASE_URL}/api/v1/trading-mode/status", timeout=10)
         if response.status_code == 200:
             status = response.json()
             print(f"   Mode: {status['current_mode']}")
@@ -36,7 +36,9 @@ def test_trading_mode_api():
     print("\n2. Wisselen naar DEMO mode:")
     try:
         data = {"mode": "demo", "force_dry_run": False}
-        response = requests.post(f"{BASE_URL}/api/v1/trading-mode/set", json=data)
+        response = requests.post(
+            f"{BASE_URL}/api/v1/trading-mode/set", json=data, timeout=10
+        )
         if response.status_code == 200:
             result = response.json()
             print(f"   Nieuwe mode: {result['current_mode']}")
@@ -52,7 +54,9 @@ def test_trading_mode_api():
     # 3. Test live trading validatie
     print("\n3. Live trading validatie:")
     try:
-        response = requests.get(f"{BASE_URL}/api/v1/trading-mode/validate-live")
+        response = requests.get(
+            f"{BASE_URL}/api/v1/trading-mode/validate-live", timeout=10
+        )
         if response.status_code == 200:
             validation = response.json()
             print(f"   Kan live traden: {validation['can_trade_live']}")
@@ -68,7 +72,9 @@ def test_trading_mode_api():
     # 4. Test emergency dry-run enable
     print("\n4. Emergency dry-run enable:")
     try:
-        response = requests.post(f"{BASE_URL}/api/v1/trading-mode/enable-dry-run")
+        response = requests.post(
+            f"{BASE_URL}/api/v1/trading-mode/enable-dry-run", timeout=10
+        )
         if response.status_code == 200:
             result = response.json()
             print(f"   Success: {result['dry_run_enabled']}")
@@ -89,6 +95,7 @@ def test_order_simulation():
         requests.post(
             f"{BASE_URL}/api/v1/trading-mode/set",
             json={"mode": "dry_run", "force_dry_run": True},
+            timeout=10,
         )
 
         # Test een order plaatsen
@@ -111,7 +118,7 @@ def test_health_check():
     """Test health check met trading mode info"""
     print("\n6. Health check met trading mode:")
     try:
-        response = requests.get(f"{BASE_URL}/health")
+        response = requests.get(f"{BASE_URL}/health", timeout=10)
         if response.status_code == 200:
             health = response.json()
             print(f"   Status: {health['status']}")

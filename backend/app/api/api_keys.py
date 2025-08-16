@@ -14,6 +14,9 @@ from app.services.encryption_service import EncryptionService
 
 router = APIRouter()
 
+# Demo placeholder - replace with proper auth in production
+DEMO_PLACEHOLDER_HASH = "$2b$12$placeholder_hash_for_demo_only"
+
 
 class APIKeyRequest(BaseModel):
     api_key: str
@@ -74,10 +77,11 @@ async def store_api_key(
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
             # Create default user for demo
+            # TODO: In production, implement proper user registration
             user = User(
                 username=f"user_{user_id}",
                 email=f"user_{user_id}@example.com",
-                hashed_password="demo_password",  # In real app, this would be properly hashed
+                hashed_password=DEMO_PLACEHOLDER_HASH,  # Placeholder - require proper auth in production
             )
             db.add(user)
             db.commit()
