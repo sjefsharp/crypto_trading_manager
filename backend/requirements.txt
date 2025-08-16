@@ -47,7 +47,7 @@ mkdocs==1.5.3
 mkdocs-material==9.4.8
 
 # Cryptography for API key encryption
-cryptography==41.0.8
+cryptography==44.0.1
 
 # Async task handling
 celery==5.3.4
