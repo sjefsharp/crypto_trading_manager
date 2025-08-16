@@ -99,6 +99,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install coverage dependency if missing
+        run: |
+          if ! npm list @vitest/coverage-v8 > /dev/null 2>&1; then
+            npm install --save-dev @vitest/coverage-v8@^3.2.4
+          fi
+
       - name: Type checking
         run: npm run type-check
 
@@ -114,7 +120,7 @@ jobs:
       - name: Upload frontend coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: ./frontend/coverage/coverage-final.json
+          files: ./coverage/lcov.info
           flags: frontend
           name: frontend-coverage
 
@@ -200,7 +206,11 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: |
+          npm ci
+          if ! npm list @vitest/coverage-v8 > /dev/null 2>&1; then
+            npm install --save-dev @vitest/coverage-v8@^3.2.4
+          fi
 
       - name: Start backend server
         working-directory: ./backend
