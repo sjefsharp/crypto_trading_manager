@@ -36,7 +36,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
           pip install -e .[dev,test]
 
       - name: Code formatting check (Black)
@@ -193,7 +194,8 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
           pip install -e .[test]
 
       - name: Install frontend dependencies
