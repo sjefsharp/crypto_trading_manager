@@ -15,7 +15,15 @@ def test_trading_mode_api():
     """Test de trading mode API endpoints"""
     print("=== TRADING MODE API DEMONSTRATIE ===\n")
 
-    # 1. Check huidige status
+    # Test all endpoints in sequence
+    test_current_status()
+    test_mode_switch()
+    test_live_trading_validation()
+    test_emergency_dry_run()
+
+
+def test_current_status():
+    """Test 1: Check current trading mode status"""
     print("1. Huidige trading mode status:")
     try:
         response = requests.get(f"{BASE_URL}/api/v1/trading-mode/status", timeout=10)
@@ -32,7 +40,9 @@ def test_trading_mode_api():
 
     print("\n" + "=" * 50)
 
-    # 2. Test mode wisselen naar demo
+
+def test_mode_switch():
+    """Test 2: Switch to demo mode"""
     print("\n2. Wisselen naar DEMO mode:")
     try:
         data = {"mode": "demo", "force_dry_run": False}
@@ -51,7 +61,9 @@ def test_trading_mode_api():
 
     print("\n" + "=" * 50)
 
-    # 3. Test live trading validatie
+
+def test_live_trading_validation():
+    """Test 3: Live trading validation"""
     print("\n3. Live trading validatie:")
     try:
         response = requests.get(
@@ -69,7 +81,9 @@ def test_trading_mode_api():
 
     print("\n" + "=" * 50)
 
-    # 4. Test emergency dry-run enable
+
+def test_emergency_dry_run():
+    """Test 4: Emergency dry-run enable"""
     print("\n4. Emergency dry-run enable:")
     try:
         response = requests.post(

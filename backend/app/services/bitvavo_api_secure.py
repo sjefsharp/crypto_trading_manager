@@ -124,45 +124,64 @@ class BitvavoAPI:
             )
 
         url = f"{self.base_url}{endpoint}"
-
-        # Prepare request body
-        request_body = ""
-        if body:
-            request_body = json.dumps(body)
-
-        # Generate headers
+        request_body = self._prepare_request_body(body)
         headers = self._get_headers(method, endpoint, request_body)
 
         try:
-            if method.upper() == "GET":
-                response = await self.session.get(url, headers=headers, params=params)
-            elif method.upper() == "POST":
-                response = await self.session.post(url, headers=headers, json=body)
-            elif method.upper() == "DELETE":
-                response = await self.session.delete(url, headers=headers)
-            else:
-                raise ValueError(f"Unsupported HTTP method: {method}")
+            response = await self._execute_http_request(
+                method, url, headers, params, body
+            )
+            return await self._handle_response(response)
+        except (httpx.TimeoutException, httpx.ConnectError, Exception) as e:
+            return self._handle_request_exception(e)
 
-            # Handle response
-            if response.status_code == 200:
-                return await response.json()
-            else:
-                error_data = response.text
-                try:
-                    error_json = await response.json()
-                    return {
-                        "error": error_json.get("error", error_data),
-                        "status_code": response.status_code,
-                    }
-                except Exception:
-                    return {"error": error_data, "status_code": response.status_code}
+    def _prepare_request_body(self, body: Dict = None) -> str:
+        """Prepare request body for authentication"""
+        return json.dumps(body) if body else ""
 
-        except httpx.TimeoutException:
+    async def _execute_http_request(
+        self,
+        method: str,
+        url: str,
+        headers: Dict,
+        params: Dict = None,
+        body: Dict = None,
+    ):
+        """Execute HTTP request based on method"""
+        method = method.upper()
+        if method == "GET":
+            return await self.session.get(url, headers=headers, params=params)
+        elif method == "POST":
+            return await self.session.post(url, headers=headers, json=body)
+        elif method == "DELETE":
+            return await self.session.delete(url, headers=headers)
+        else:
+            raise ValueError(f"Unsupported HTTP method: {method}")
+
+    async def _handle_response(self, response):
+        """Handle API response and extract data or errors"""
+        if response.status_code == 200:
+            return await response.json()
+
+        # Handle error responses
+        error_data = response.text
+        try:
+            error_json = await response.json()
+            return {
+                "error": error_json.get("error", error_data),
+                "status_code": response.status_code,
+            }
+        except Exception:
+            return {"error": error_data, "status_code": response.status_code}
+
+    def _handle_request_exception(self, exception) -> Dict[str, Any]:
+        """Handle request exceptions and return standardized error format"""
+        if isinstance(exception, httpx.TimeoutException):
             return {"error": "Request timeout", "status_code": 408}
-        except httpx.ConnectError:
+        elif isinstance(exception, httpx.ConnectError):
             return {"error": "Connection failed", "status_code": 503}
-        except Exception as e:
-            return {"error": str(e), "status_code": 500}
+        else:
+            return {"error": str(exception), "status_code": 500}
 
     async def test_connection(self) -> Dict[str, Any]:
         """Test API connection and authentication"""
@@ -280,6 +299,29 @@ class BitvavoAPI:
         if not self.api_key or not self.api_secret:
             raise ValueError("API credentials not configured")
 
+        order_data = self._build_order_data(
+            market, side, order_type, amount, price, **kwargs
+        )
+
+        # Handle dry-run mode
+        if trading_mode_service.is_dry_run_enabled():
+            return self._handle_dry_run_order(order_data)
+
+        # Handle live trading
+        return await self._handle_live_order(
+            order_data, market, side, order_type, amount, price, **kwargs
+        )
+
+    def _build_order_data(
+        self,
+        market: str,
+        side: str,
+        order_type: str,
+        amount: Optional[float],
+        price: Optional[float],
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Build order data structure"""
         order_data = {
             "market": market,
             "side": side,
@@ -296,16 +338,27 @@ class BitvavoAPI:
             if value is not None:
                 order_data[key] = value
 
-        # Check if dry-run mode is enabled
-        if trading_mode_service.is_dry_run_enabled():
-            warning = trading_mode_service.get_mode_warning()
-            logger.warning(f"{warning}")
-            logger.info(f"[DRY RUN] Would place order: {order_data}")
+        return order_data
 
-            # Return simulated response
-            return trading_mode_service.simulate_order_response(order_data)
+    def _handle_dry_run_order(self, order_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle order placement in dry-run mode"""
+        warning = trading_mode_service.get_mode_warning()
+        logger.warning(f"{warning}")
+        logger.info(f"[DRY RUN] Would place order: {order_data}")
+        return trading_mode_service.simulate_order_response(order_data)
 
-        # Live trading - proceed with actual API call
+    async def _handle_live_order(
+        self,
+        order_data: Dict[str, Any],
+        market: str,
+        side: str,
+        order_type: str,
+        amount: Optional[float],
+        price: Optional[float],
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Handle order placement in live trading mode"""
+        # Validate live trading mode
         if not trading_mode_service.is_live_trading():
             raise Exception(
                 "Live trading not enabled. Check trading mode configuration."
@@ -318,7 +371,27 @@ class BitvavoAPI:
 
         logger.warning("🔴 LIVE TRADING: Placing real order!")
 
-        # Convert to API format for real request
+        # Execute live order
+        api_order_data = self._convert_to_api_format(
+            market, side, order_type, amount, price, **kwargs
+        )
+        result = await self._make_request("POST", "/order", body=api_order_data)
+
+        if "error" in result:
+            raise Exception(f"Failed to place order: {result['error']}")
+
+        return result
+
+    def _convert_to_api_format(
+        self,
+        market: str,
+        side: str,
+        order_type: str,
+        amount: Optional[float],
+        price: Optional[float],
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Convert order data to Bitvavo API format"""
         api_order_data = {"market": market, "side": side, "orderType": order_type}
 
         if amount:
@@ -333,11 +406,7 @@ class BitvavoAPI:
                     str(value) if isinstance(value, (int, float)) else value
                 )
 
-        result = await self._make_request("POST", "/order", body=api_order_data)
-        if "error" in result:
-            raise Exception(f"Failed to place order: {result['error']}")
-
-        return result
+        return api_order_data
 
     async def get_orders(self, market: str = None) -> List[Dict[str, Any]]:
         """Get open orders"""
