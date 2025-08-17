@@ -1,0 +1,38 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "crypto-trading-manager"
+version = "1.0.0"
+description = "Enterprise-grade cryptocurrency trading manager"
+authors = ["Sjef Sharp <sjef@example.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = {version = "0.115.6", extras = ["all"]}
+uvicorn = {version = "0.32.1", extras = ["standard"]}
+sqlalchemy = {version = "2.0.36", extras = ["asyncio"]}
+aiosqlite = "0.20.0"
+aioredis = "2.0.1"
+celery = {version = "5.4.0", extras = ["redis"]}
+ccxt = "4.4.38"
+aiohttp = "<=3.10.11"
+websockets = "13.1"
+pandas = "2.2.3"
+numpy = "2.2.0"
+pydantic = "2.10.3"
+alembic = "1.14.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.4"
+pytest-asyncio = "0.24.0"
+black = "24.10.0"
+isort = "5.13.2"
+ruff = "0.8.4"
+mypy = "1.13.0"
+pre-commit = "4.0.1"
+pytest-cov = "4.1.0"
+pytest-mock = "3.12.0"
